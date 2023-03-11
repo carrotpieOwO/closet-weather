@@ -1,17 +1,9 @@
+import { Row } from "antd";
 import { useWeather } from "../../hooks/useWeather";
 import CurrentWeather from "./CurrentWeather";
 import HourlyWeather from "./HoulyWeather";
+import { HourDataType, positionProps } from "../../index.d";
 
-export interface positionProps {
-    lat: number
-    lon: number
-}
-
-interface HourDataType {
-    time: string
-    temp: number
-    icon: string
-}
 interface WeatherProps {
     isLoading: boolean
     isError: boolean
@@ -27,10 +19,11 @@ export default function Home({lat, lon}:positionProps) {
         { isError && <div>에러남</div> }
         {
             currentData && hourlyData &&
-            <>
+            <div style={{textAlign:'center', justifyContent:'center', display:'flex', flexDirection:'column', alignItems:'center'}}>
+                <h1>{currentData.location}</h1>
                 <CurrentWeather data={currentData}/>
                 <HourlyWeather data={hourlyData}/>
-            </>
+            </div>
         }      
     </div>
   );

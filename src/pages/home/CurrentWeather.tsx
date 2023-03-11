@@ -1,3 +1,9 @@
+import weatherIcons from "../../utils/weatherIcons";
+import { Col, Row } from "antd";
+import { Typography } from 'antd';
+
+const { Title } = Typography;
+
 interface CurrentDataProps {
     data: {
         location: string;
@@ -12,15 +18,15 @@ interface CurrentDataProps {
 
 export default function CurrentWeather({data}:CurrentDataProps) {
     return (
-        <div>
-            <div>
-                <h1>{data.location}</h1>
-                <p>icon: {data.icon}</p>
-                <p>description: {data.description}</p>
-                <p>현재기온: {data.currentTemp}</p>
-                <p>최고온도, 최저온도: {data.todayMaxTmep}, {data.todayMinTemp}</p>
-                <p>체감온도: {data.feelsLikeTemp}</p>
-            </div>  
-        </div>
+        <Row align='middle'>
+            <Col xs={24} md={16}>
+                <img src={weatherIcons[`${data.icon}`]} alt={data.description} width='100%'/>
+            </Col>
+            <Col xs={24} md={8}>
+                <div>{data.description}</div>
+                <Title>{data.currentTemp}°</Title>
+                <p>체감온도 🌡️{data.feelsLikeTemp}°</p>
+            </Col>
+        </Row>
     );
 }
