@@ -8,3 +8,10 @@ export interface positionProps {
     lat: number;
     lon: number;
 }
+export interface ClothItem {
+    title: string;
+    image: string;
+    category?: string;
+    subCategory?: string;
+    brand: string;
+}

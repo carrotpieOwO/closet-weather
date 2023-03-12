@@ -8,7 +8,7 @@ const Container = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
-    height: calc(100vh - 156px);
+    height: calc(100vh - 126px);
 `
 const FormWrapper = styled.div`
     width: 100%;

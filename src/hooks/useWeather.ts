@@ -54,9 +54,9 @@ export const useWeather = ({lat, lon}:positionProps) => {
         const hourlyResult = result[1].data?.data;
         
         // 5일/3시간 날씨정보에서 오늘 날씨데이터 추출
-        const todayList = hourlyResult.list.filter(
-            (data: HourDataType) => dayjs(data.dt_txt).isSame(dayjs(), 'day')
-        );
+        // const todayList = hourlyResult.list.filter(
+        //     (data: HourDataType) => dayjs(data.dt_txt).isSame(dayjs(), 'day')
+        // );
 
         // 시간별 기온, 아이콘 추출
         // icon list: https://openweathermap.org/weather-conditions
@@ -68,8 +68,8 @@ export const useWeather = ({lat, lon}:positionProps) => {
         }));
 
         // 오늘 날씨데이터 중 최고온도, 최저온도 계산
-        const maxTemp = Math.max(...todayList.map((data:HourDataType) => data.main.temp_max));
-        const minTemp = Math.min(...todayList.map((data:HourDataType) => data.main.temp_min));
+        // const maxTemp = Math.max(...todayList.map((data:HourDataType) => data.main.temp_max));
+        // const minTemp = Math.min(...todayList.map((data:HourDataType) => data.main.temp_min));
     
         // 현재 날씨데이터 중 화면에 쓸 데이터 추출
         currentData = {
@@ -77,8 +77,8 @@ export const useWeather = ({lat, lon}:positionProps) => {
             description: currentResult.weather[0].description,
             icon: currentResult.weather[0].icon,
             currentTemp: currentResult.main.temp,
-            todayMaxTmep: maxTemp,
-            todayMinTemp: minTemp,
+            // todayMaxTmep: maxTemp,
+            // todayMinTemp: minTemp,
             feelsLikeTemp: currentResult.main.feels_like,
         }
     }

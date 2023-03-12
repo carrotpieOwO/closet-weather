@@ -7,6 +7,7 @@ import Login from './pages/login/Login';
 import Signup from './pages/signup/Signup';
 import Nav from './components/Nav';
 import { useAuthContext } from './hooks/useAuthContext';
+import Closet from './pages/closet/Closet';
 
 function App() {
   const [ lat, setLat ] = useState<number | null>(null);
@@ -35,7 +36,7 @@ function App() {
           <Route path='/' element={lat && lon ? <Home lat={lat} lon={lon} /> : <div>loading...</div>} />
           <Route path='/login' element={state?.user ? <Navigate replace={true} to="/" /> : <Login/>} />
           <Route path='/signup' element={state?.user ? <Navigate replace={true} to="/" /> : <Signup/>} />
-          <Route path='/closet' />
+          <Route path='/closet' element={<Closet/>}/>
           <Route path='/calender' />
         </Routes>
       </BrowserRouter>

@@ -15,7 +15,6 @@ const Header = styled.header`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 30px;
     box-shadow: rgb(0 0 0 / 3%) 0px 1px 2px 0px, rgb(0 0 0 / 2%) 0px 1px 6px -1px, rgb(0 0 0 / 2%) 0px 2px 4px 0px;
 `
 const HomeBtn = styled(Link)`
