@@ -12,7 +12,7 @@ function App() {
   const [ lat, setLat ] = useState<number | null>(null);
   const [ lon, setLon ] = useState<number | null>(null);
   const { state } = useAuthContext();
-  console.log('state', state)
+
   useEffect(() => {
       if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition((position) => {
@@ -28,7 +28,7 @@ function App() {
   }, [])
 
   return (
-    <div style={{background: 'linear-gradient(to right, rgb(43, 192, 228), rgb(234, 236, 198))', height:'100vh'}}>
+    <div style={{background: 'linear-gradient(to bottom, rgb(43, 192, 228), rgb(234, 236, 198))', height:'100vh'}}>
       <BrowserRouter>
         <Nav />
         <Routes>

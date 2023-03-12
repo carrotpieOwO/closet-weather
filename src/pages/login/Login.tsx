@@ -1,14 +1,14 @@
-import { Button, Form, Input } from "antd";
-import { Link } from "react-router-dom";
+import { Alert, Button, Form, Input, Typography } from "antd";
 import { MailOutlined, LockOutlined } from '@ant-design/icons';
 import styled from "styled-components";
 import { useLogin } from "../../hooks/useLogin";
+import { useForm } from "antd/es/form/Form";
 
 const Container = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
-    height: calc(100vh - 60px);
+    height: calc(100vh - 156px);
 `
 const FormWrapper = styled.div`
     width: 100%;
@@ -16,31 +16,23 @@ const FormWrapper = styled.div`
     margin: 0 20%;
     border-radius: 20px;
     padding: 5%;
+    max-width: 600px;
 `
 
 const validateMessages = {
-    required: '${label} is required!',
+    required: '${label}을 작성해주세요.',
     types: {
-      email: '${label} is not a valid email!',
-      number: '${label} is not a valid number!',
-    },
-    number: {
-      range: '${label} must be between ${min} and ${max}',
-    },
+      email: '유효하지 않은 Email입니다.',
+    }
 };
 
 export default function Login() {
     const { error, isLoading, login } = useLogin();
 
     const onFinish = (values: any) => {
-        console.log('Success:', values);
-        //const { email, password } = values;
         login(values);
     };
       
-    const onFinishFailed = (errorInfo: any) => {
-        console.log('Failed:', errorInfo);
-    };
 
     return (
         <Container>
@@ -51,7 +43,6 @@ export default function Login() {
                     style={{margin:'auto', width:'80%'}}
                     size="large"
                     onFinish={onFinish}
-                    onFinishFailed={onFinishFailed}
                     autoComplete="off"
                     validateMessages={validateMessages}
                 >
@@ -65,13 +56,18 @@ export default function Login() {
                     >
                         <Input.Password prefix={<LockOutlined />} placeholder='password'/>
                     </Form.Item>
+                    {
+                        error && <Alert message={error} type="error"  showIcon closable/>
+                    }
                     <Form.Item>
-                        <Button type="primary" htmlType="submit" style={{width:'100%'}}>
-                            Login
+                        <Button type="primary" htmlType="submit" loading={isLoading} style={{width:'100%', marginTop: '30px'}}>
+                            로그인
                         </Button>
                     </Form.Item>
                 </Form>
-                <Link to='/signup'>가입하러 가기</Link>
+                <div style={{textAlign: 'end'}}>
+                    <Typography.Link href="/signup">✍🏻 가입하러 가기</Typography.Link>
+                </div>
             </FormWrapper>
         </Container>
     )
