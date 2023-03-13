@@ -5,12 +5,14 @@ import styled from "styled-components";
 import { useShop } from "../../hooks/useShop";
 import { ClothItem } from "../../index.d";
 import { SkinFilled } from '@ant-design/icons';
+import { useFirestore } from "../../hooks/useFirestore";
 
 const { Search } = Input;
 
 interface ShopProps {
     open: boolean,
-    setOpen: (open: boolean) => void
+    setOpen: (open: boolean) => void,
+    uid?: string,
 }
 
 const listStyle = {
@@ -24,7 +26,7 @@ const CoverImage = styled.div<{image:string}>`
     background-size:cover;
 `
 
-export default function Shop ({open, setOpen}:ShopProps) {
+export default function Shop ({ open, setOpen, uid }:ShopProps) {
     const [ list, setList ] = useState<ClothItem[] | null>(null);
     const { error, isLoading, search } = useShop();
     const [ messageApi, contextHolder ] = message.useMessage();
@@ -32,6 +34,7 @@ export default function Shop ({open, setOpen}:ShopProps) {
     const [ startNum, setStartNum ] = useState(1);
     const [ hasMore, setHasMore ] = useState(false);    
     const searchRef = useRef<InputRef>(null);
+    const { addDocument, response } = useFirestore('closet'); // collection 생성
 
     useEffect(() => {
         // drawer 열릴 경우 모두 초기화
@@ -64,6 +67,30 @@ export default function Shop ({open, setOpen}:ShopProps) {
         setList((prevItems) => [...prevItems!, ...cloths!]);
     };
 
+    const addCloth = (item:ClothItem) => {
+        if (uid) {
+            addDocument({ uid, ...item})
+        } else {
+            messageApi.open({
+                type: 'error',
+                content: '로그인이 필요합니다.',
+            });
+            window.location.replace('/login')
+        }
+    }
+
+    useEffect(() => {
+        console.log('response', response)
+        response.success && messageApi.open({
+            type: 'success',
+            content: '성공적으로 저장하였습니다!',
+        });
+
+        response.error && messageApi.open({
+            type: 'error',
+            content: error,
+        });
+    }, [response])
     return (
         <Drawer
             title="👔 옷 넣기"
@@ -86,36 +113,39 @@ export default function Shop ({open, setOpen}:ShopProps) {
             <Search placeholder="input search text" onSearch={onSearch} enterButton size='large'
                 style={{marginBottom:'30px'}} ref={searchRef} value={searchValue} 
                 onChange={(e) => setSearchValue(e.target.value)}/>
-            <List
-                style={!list || isLoading ? listStyle : {}}
-                grid={{
-                    gutter: 16,
-                    xs: 1,
-                    sm: 2,
-                    md: 2,
-                    lg: 3,
-                    xl: 4,
-                    xxl: 5
-                }}
-                loading={isLoading}
-                dataSource={list ? list : undefined}
-                renderItem={(item:ClothItem) => (
+                {
                     list &&
-                        <List.Item key={item.title}>
-                            <Card cover={<CoverImage image={item.image}/>}>
-                                <Meta title={item.title}/>
-                                <Button style={{marginTop:'30px', width:'100%'}}>
-                                    <SkinFilled />
-                                    담기</Button>
-                            </Card>
-                        </List.Item>
-                )}
-            />               
+                        <List
+                            grid={{
+                                gutter: 16,
+                                xs: 1,
+                                sm: 2,
+                                md: 2,
+                                lg: 3,
+                                xl: 4,
+                                xxl: 5
+                            }}
+                            loading={isLoading}
+                            dataSource={list}
+                            renderItem={(item:ClothItem) => (
+                                    <List.Item key={item.title}>
+                                        <Card cover={<CoverImage image={item.image}/>}>
+                                            <Meta title={item.title}/>
+                                            <Button style={{marginTop:'30px', width:'100%'}} onClick={() => addCloth(item)}>
+                                                <SkinFilled />
+                                                담기
+                                            </Button>
+                                        </Card>
+                                    </List.Item>
+                            )}
+                        />                 
+                }
+                {
+                    list && hasMore && 
+                        <Button onClick={loadMoreData} style={{width:'100%'}}>더 불러오기</Button>
+                }
 
-            {
-                hasMore && 
-                <Button onClick={loadMoreData} style={{width:'100%'}}>더 불러오기</Button>
-            }          
+           
         </Drawer>
     )
 }

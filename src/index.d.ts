@@ -14,4 +14,6 @@ export interface ClothItem {
     category?: string;
     subCategory?: string;
     brand: string;
+    uid?:string;
+    id?:string;
 }

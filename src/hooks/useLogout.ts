@@ -16,6 +16,8 @@ export const useLogout = () => {
             dispatch({ type: 'logout' });
             setError(null);
             setIsLoading(false);
+
+            window.location.replace('/login')
         }).catch((error) => {
             setError(error.message);
             setIsLoading(false);
