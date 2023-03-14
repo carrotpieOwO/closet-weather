@@ -103,7 +103,7 @@ export default function Shop ({ open, setOpen, uid }:ShopProps) {
                 onChange={(e) => setSearchValue(e.target.value)}/>
                 {
                     list &&
-                    <ClothList list={list} isLoading={isLoading} func={addCloth} btnTitle='담기'/>
+                    <ClothList componentNm='shop' list={list} isLoading={isLoading} func={addCloth} btnTitle='담기'/>
                 }
                 {
                     list && hasMore && 

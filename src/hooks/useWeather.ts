@@ -3,31 +3,16 @@ import dayjs from "dayjs";
 import utc from 'dayjs/plugin/utc'
 import timezone from 'dayjs/plugin/timezone'
 import { useQueries } from "react-query";
-import { positionProps } from "../index.d";
+import { PositionProps, HourDataProps } from "../index.d";
 import 'dayjs/locale/ko'
 
 dayjs.extend(utc);
 dayjs.extend(timezone)
 
-interface HourDataType {
-    dt_txt: string;
-    dt: number,
-    main: {
-      temp: number;
-      temp_max: number;
-      temp_min: number;
-      feels_like: number;
-    };
-    weather: {
-      icon: string;
-      description: string;
-    }[];
-}
-
 const BASE_PATH = 'https://api.openweathermap.org/data/2.5';
 const APP_KEY = process.env.REACT_APP_WEATHER_KEY;
 
-export const useWeather = ({lat, lon}:positionProps) => {
+export const useWeather = ({lat, lon}:PositionProps) => {
     // 1. 현재 날씨정보 
     // 2. 5일/3시간 날씨정보
     const result = useQueries([
@@ -60,7 +45,7 @@ export const useWeather = ({lat, lon}:positionProps) => {
 
         // 시간별 기온, 아이콘 추출
         // icon list: https://openweathermap.org/weather-conditions
-        hourlyData = hourlyResult.list.slice(0, 5).map((data :HourDataType) => ({
+        hourlyData = hourlyResult.list.slice(0, 5).map((data :HourDataProps) => ({
             time: dayjs.unix(data.dt).format('YYYY-MM-DD HH'),
             temp: data.main.temp,
             icon: data.weather[0].icon,

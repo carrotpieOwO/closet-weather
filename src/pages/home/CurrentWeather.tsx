@@ -1,21 +1,12 @@
 import weatherIcons from "../../utils/weatherIcons";
 import { Col, Row } from "antd";
 import { Typography } from 'antd';
+import { CurrentDataType } from "../../index.d";
 
 const { Title } = Typography;
-
 interface CurrentDataProps {
-    data: {
-        location: string;
-        icon: string;
-        description: string;
-        currentTemp: number;
-        todayMaxTmep: number;
-        todayMinTemp: number;
-        feelsLikeTemp: number;
-    }
+    data: CurrentDataType
 }
-
 export default function CurrentWeather({data}:CurrentDataProps) {
     return (
         <Row align='middle'>

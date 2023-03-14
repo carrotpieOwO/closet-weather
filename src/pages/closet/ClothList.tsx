@@ -13,13 +13,14 @@ interface ClothListProps {
     list: ClothItem[];
     isLoading: boolean;
     func: (props: ClothItem) => void;
-    btnTitle: string
+    btnTitle: string;
+    componentNm: string;
 }
 const listStyle = {
     height:'calc(100vh - 350px', display: 'flex', alignItems: 'center', justifyContent: 'center'
 }
 
-export default function ClothList ({ list, isLoading, func, btnTitle }:ClothListProps) {
+export default function ClothList ({ list, isLoading, func, btnTitle, componentNm }:ClothListProps) {
     return (
         <List
             grid={{
@@ -35,7 +36,7 @@ export default function ClothList ({ list, isLoading, func, btnTitle }:ClothList
             loading={isLoading}
             dataSource={list}
             renderItem={(item:ClothItem) => (
-                <List.Item key={item.title}>
+                <List.Item key={`${componentNm}-${item.id}`}>
                     <Card cover={<CoverImage image={item.image}/>}>
                         <Meta title={item.title}/>
                         <Button style={{marginTop:'30px', width:'100%'}} onClick={() => func(item)}>

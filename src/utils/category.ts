@@ -80,3 +80,11 @@ export const categories = [
         ]
     }
 ]
+
+export const findParentLabel = (label:string) => {
+    const parent = categories.find((item) =>
+        item.children?.some((child) => child.label === label)
+    );
+
+    return parent ? parent.key : '';
+};
