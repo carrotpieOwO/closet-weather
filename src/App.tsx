@@ -8,7 +8,12 @@ import Signup from './pages/signup/Signup';
 import Nav from './components/Nav';
 import { useAuthContext } from './hooks/useAuthContext';
 import Closet from './pages/closet/Closet';
+import styled from 'styled-components';
 
+const Container = styled.div`
+  background: linear-gradient(to bottom, rgb(43, 192, 228), rgb(234, 236, 198));
+  min-height: 100vh;
+`
 function App() {
   const [ lat, setLat ] = useState<number | null>(null);
   const [ lon, setLon ] = useState<number | null>(null);
@@ -29,7 +34,7 @@ function App() {
   }, [])
 
   return (
-    <div style={{background: 'linear-gradient(to bottom, rgb(43, 192, 228), rgb(234, 236, 198))', height:'100vh'}}>
+    <Container>
       <BrowserRouter>
         <Nav />
         <Routes>
@@ -40,7 +45,7 @@ function App() {
           <Route path='/calender' />
         </Routes>
       </BrowserRouter>
-    </div>
+    </Container>
   );
 }
 

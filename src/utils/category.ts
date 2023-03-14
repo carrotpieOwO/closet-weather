@@ -86,5 +86,6 @@ export const findParentLabel = (label:string) => {
         item.children?.some((child) => child.label === label)
     );
 
-    return parent ? parent.key : '';
+    const key = parent ? (parent.key === 'setup' ? 'bottom' : parent.key) : ''
+    return key
 };

@@ -1,204 +1,196 @@
 import { useEffect, useState } from "react";
 import { useCollection } from "../../hooks/useCollection";
 import { ClothItem, QueryProps } from "../../index.d";
-import { filterCloth, getQuery } from "../../utils/utils";
-import ClothList from "../closet/ClothList";
+import { getQuery, recommendCloths, updateItemInArray } from "../../utils/utils";
 import { findParentLabel } from "../../utils/category";
-import { Modal } from "antd";
+import { Button, Col, Modal, Row, Tooltip } from "antd";
+import styled from "styled-components";
+import { ReloadOutlined, CheckOutlined } from '@ant-design/icons';
 
+const Container = styled.div`
+    width: 70%;
+    padding: 30px;
+    margin-top: 20px;
+    justify-content: center;
+    margin-left: auto;
+    margin-right: auto;
+`
+const RecommendCltohImage = styled.img`
+    width:100%;
+    height: 100%;
+    max-height: 300px;
+    border-radius: 20px;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 3%), 0 1px 6px -1px rgb(0 0 0 / 2%), 0 2px 4px 0 rgb(0 0 0 / 2%);
+`
+const ModalImage = styled.img`
+    width: 100%;
+    height: 100%;
+    max-height: 200px;
+    border-radius: 20px;
+`
 interface TempProps {
     temp: number
     uid: string
 }
 
-const recommendCloths = (temp:number, documents:ClothItem[]):{outerList:ClothItem[], topList:ClothItem[], bottomList:ClothItem[]} => {
-    let outerList, topList, bottomList = [];
-    switch (true) {
-        // todo : 하의, 원피스 조건 세분화하기
-        case temp <= 5 :
-            outerList = filterCloth(documents, '점퍼', ['패딩', '다운', '푸퍼', 'puffer', 'down'], true)
-            
-            let knitList = filterCloth(documents, '니트/스웨터', ['반팔', '숏', 'short'], false)
-            let tshirtList = filterCloth(documents, '티셔츠', ['후드', '기모', 'hood'], true)
-            topList = [...knitList, ...tshirtList]
-            
-            bottomList = filterCloth(documents, ['바지', '청바지'], [], false)
-        
-            return { outerList, topList, bottomList }
-        
-        case temp >= 5 && temp <= 8:
-            let jumperList = filterCloth(documents, '점퍼', ['패딩', '다운', '푸퍼', 'puffer', 'down'], true)
-            let coatList = filterCloth(documents, '코트', ['트렌치', 'trench', '바람막이', 'windbreak'], false)
-            outerList = [...jumperList, ...coatList];
-           
-            let knitList2 = filterCloth(documents, '니트/스웨터', ['반팔', '숏', 'short'], false)
-            let tshirtList2 = filterCloth(documents, '티셔츠', ['후드', 'hood', '맨투맨', 'sweatshirt'], true)
-            topList = [...knitList2, ...tshirtList2]
-
-            bottomList = filterCloth(documents, ['바지', '청바지'], [], false)
-
-            return { outerList, topList, bottomList }
-        
-        case temp >= 8 && temp <= 11 :
-            let jaketList = filterCloth(documents, '재킷', [], false)
-            let coatList2 = filterCloth(documents, '코트', ['트렌치', 'trench', '바람막이', 'windbreak'], true)
-            outerList = [...jaketList, ...coatList2];
-           
-            let knitList3 = filterCloth(documents, '니트/스웨터', ['반팔', '숏', 'short'], false)
-            let tshirtList3 = filterCloth(documents, '티셔츠', ['후드', 'hood', '맨투맨', 'sweatshirt'], true)
-            topList = [...knitList3, ...tshirtList3]
-
-            bottomList = filterCloth(documents, ['바지', '청바지'], [], false)
-        
-            return { outerList, topList, bottomList }
-
-        case temp >= 11 && temp <= 16 :
-            let jaketList2 = filterCloth(documents, '재킷', [], false)
-            let cardiganList = filterCloth(documents, '카디건', [],false)
-            outerList = [...jaketList2, ...cardiganList];
-           
-            let knitList4 = filterCloth(documents, '니트/스웨터', [], false)
-            let tshirtList4 = filterCloth(documents, '티셔츠', ['후드', 'hood', '맨투맨', 'sweatshirt'], true)
-            topList = [...knitList4, ...tshirtList4]
-
-            bottomList = filterCloth(documents, ['바지', '청바지', '스커트'], [], false)
-        
-            return { outerList, topList, bottomList }
-
-        case temp >= 16 && temp <= 19 :            
-            outerList = filterCloth(documents, '카디건', [],false)
-            
-            let knitList5 = filterCloth(documents, '니트/스웨터', [], false)
-            let tshirtList5 = filterCloth(documents, '티셔츠', ['후드', 'hood', '기모', '반팔', '민소매', '나시', '슬리브리스', 'short', 'sleeveless'], false)
-            topList = [...knitList5, ...tshirtList5]
-
-            bottomList = filterCloth(documents, ['바지', '청바지', '스커트'], [], false)
-        
-            return { outerList, topList, bottomList }
-        
-        case temp >= 19 && temp <= 22 :  
-            let tshirtList6 = filterCloth(documents, '티셔츠', ['후드', 'hood', '기모', '민소매', '나시', '슬리브리스', 'sleeveless'], false)
-            let shirtList = filterCloth(documents, ['블라우스/셔츠', '셔츠/남방'], ['반팔', 'short'], false)
-            let onepiceList = filterCloth(documents, ['원피스'], [], false)
-            let jumpsuitList = filterCloth(documents, ['점프슈트'], [], false)
-            topList = [...tshirtList6, ...shirtList, ...onepiceList, ...jumpsuitList]
-
-            bottomList = filterCloth(documents, ['바지', '청바지', '스커트'], [], false)
-        
-            return { outerList: [], topList, bottomList }
-
-        case temp >= 22 && temp <= 27 :  
-            let tshirtList7 = filterCloth(documents, '티셔츠', ['반팔', 'short', '크롭', 'crop'], true)
-            let shirtList2 = filterCloth(documents, ['블라우스/셔츠'], [], false)
-            let onepiceList2 = filterCloth(documents, ['원피스'], [], false)
-            let jumpsuitList2 = filterCloth(documents, ['점프슈트'], [], false)
-            topList = [...tshirtList7, ...shirtList2, ...onepiceList2, ...jumpsuitList2]
-
-            bottomList = filterCloth(documents, ['바지', '청바지', '스커트'], [], false)
-        
-            return { outerList: [], topList, bottomList }
-        case temp >= 27 :  
-            topList = filterCloth(documents, '티셔츠', ['반팔', 'short', '크롭', 'crop', '나시', '슬리브리스', '민소매', 'sleeveless'], true)
-            bottomList = filterCloth(documents, ['바지', '청바지', '스커트'], [], false)
-        
-            return { outerList: [], topList, bottomList }
-        default:
-            return {outerList: [], topList: [], bottomList: []};
+const getRandomCloth = ( clothList:ClothItem[]|[]) => {
+    console.log('clothList', clothList)
+    if ( clothList.length > 0) {
+        return clothList[Math.floor(Math.random() * clothList.length)]
+    } else {
+        return null
     }
 }
 
+const defaultClothItemList = [{
+    title: '',
+    image: '',
+    category: '',
+    subCategory: '',
+    brand: '',
+    uid: '',
+    id: '',
+}];
 
-const getRandomCloth = ( clothList:ClothItem[] ) => {
-    return clothList[Math.floor(Math.random() * clothList.length)]
-}
-
-// 배열의 n번째 항목을 새로운 item으로 교체하는 함수 
-const updateItemInArray = (array:ClothItem[], key:string, newItem:ClothItem) => {
-    const index = key === 'outer' ? 0 : key === 'top' ? 1 : key === 'bottom' ? 2 : -1;
-
-    return [
-      ...array.slice(0, index),
-      newItem,
-      ...array.slice(index + 1)
-    ];
-  }
-
-  
 export default function RecommendClothes({temp, uid}:TempProps) {
     const [ myQuery, setMyQuery ] = useState<QueryProps[]>(getQuery({ uid: uid }));
     const { documents, error, isLoading } = useCollection('closet', myQuery)
 
     // 추천목록의 각 카테고리별로 옷을 변경할 때 필요한 추천리스트
-    const [ outerlist, setOuterList ] = useState<ClothItem[] | null>(null);
-    const [ toplist, setTopList ] = useState<ClothItem[] | null>(null);
-    const [ bottomList, setBottomList ] = useState<ClothItem[] | null>(null);
+    const [ recommendedOuterList, setRecommendedOuterList ] = useState<ClothItem[]>([]);
+    const [ recommendedTopList, setRecommendedTopList ] = useState<ClothItem[]>([]);
+    const [ bottomList, setBottomList ] = useState<ClothItem[]>([]);
 
     // 추천되서 화면에 보여지는 outer, top, bottom
-    const [ outfit, setOutfit ] = useState<ClothItem[] | null>(null)
+    const [ outfit, setOutfit ] = useState<ClothItem[]>(defaultClothItemList)
 
     // 추천목록 보여주는 모달
     const [ modalOpen, setModalOpen ] = useState(false);
 
     // 변경하기 클릭한 카테고리가 저장됨 => 모달오픈 시, 선택한 카테고리의 추천리스트를 보여주기 위함
-    const [ selectedCategory, setSelectedCategory ] = useState('')
+    const [ selectedCats, setSelectedCats ] = useState <ClothItem[]>(defaultClothItemList)
 
     useEffect(() => {
         if (documents) {
+            // documents를 불러오면, 의상리스트에서 기온에 맞는 outer, top, bottom리스트를 fitler한다.
             const { outerList, topList, bottomList } = recommendCloths(temp, documents)
-            setOuterList(outerList)
-            setTopList(topList)
+            
+            // 각 카테고리리를 state로 관리한다. => 카테고리별 추천리스트 모달에서 사용됨
+            // 날이 더울 경우, outerlist는 생성되지 않으므로 예외처리해준다. 
+            outerList.length > 0 && setRecommendedOuterList(outerList)
+            setRecommendedTopList(topList)
             setBottomList(bottomList)
-            console.log('outerList',outerList, topList, bottomList )
-            setOutfit([getRandomCloth(outerList), getRandomCloth(topList), getRandomCloth(bottomList)])
-            // todo: top의 카테고리가 원피스로 나왔을 경우엔 bottom 빼주는 로직
         }
     }, [documents])
 
+    useEffect(() => {
+        randomizeCloth()
+    }, [recommendedOuterList, recommendedTopList, bottomList])
+
+    // 카테고리별로 하나씩 랜덤으로 선택하여 최종 추천리스트를 완성한다.
+    const randomizeCloth = () => {
+        const outfitList = [getRandomCloth(recommendedOuterList), getRandomCloth(recommendedTopList), getRandomCloth(bottomList)];
+
+        // null인 카테고리 최종목록에서 제거
+        const newOutfitList: ClothItem[] = outfitList?.filter(outfit => outfit !== null) as ClothItem[]
+        
+        const keywords = ['나시', '슬립', '슬리브리스', 'sleeveless', '오버롤', '멜빵', 'overall', '뷔스티에', 'bustier']
+        const bottomIndex = newOutfitList.length === 3 ? 2 : 1 
+        
+        if(newOutfitList[bottomIndex]) {
+            const bottom = newOutfitList[bottomIndex]
+
+            if (bottom.category === '원피스' || bottom.category === '점프슈트') {
+                // 최종추천된 bottom이 나시원피스가 아닐경우 || 나시원피스이지만 25도 이상일 경우 top을 제거한다.
+                const hasKeyword = keywords.some(keyword => bottom.title.toLowerCase().includes(keyword))
+
+                if (!hasKeyword || (hasKeyword && temp >= 25)) {
+                  newOutfitList.splice(bottomIndex-1, 1)
+                }
+            }
+        }
+        setOutfit(newOutfitList)
+    }
+
+    // 카테고리별 추천리스트 모달창을 연다.
     const changeCloth = (item:ClothItem) => {
         if(item) {
             const key = findParentLabel(item.category!);
-            setModalOpen(true)
-            setSelectedCategory(key);
-        }   
-    }
-
-    const chooseCloth = (item:ClothItem) => {
-        if (outfit) {
-            const key = findParentLabel(item.category!);
-
-            const newOutfit = updateItemInArray(outfit, key ,item)
             
-            setOutfit(newOutfit)
-            setModalOpen(false);
+            key === 'outer' &&  setSelectedCats(recommendedOuterList);
+            key === 'top' && setSelectedCats(recommendedTopList);
+            key === 'bottom' && setSelectedCats(bottomList);
+    
+            setModalOpen(true)
         }
     }
- 
+
+    // 카테고리별 추천리스트에서 의상 선택 시, 최종 추천리스트를 업데이트한다.
+    const chooseCloth = (item:ClothItem) => {
+        const key = findParentLabel(item.category!);
+        let newOutfit = updateItemInArray(outfit, key ,item)
+        
+        // 최종 추천리스트가 1개이고(원피스일 경우), 원피스가 아닌 항목을 선택한다면, 상의를 최종추천리스트에 넣는다.
+        if(outfit.length === 1 && (item.category !== '원피스' && item.category !== '점프슈트' )) {
+            const top =  getRandomCloth(recommendedTopList);
+            top && newOutfit.unshift(top)
+        }
+        
+        // 최종 추천리스트가 1개 이상일 경우, 원피스를 선택하고 25도가 넘는다면 상의를 제거한다.
+        if ((item.category === '원피스' || item.category === '점프슈트' ) && temp >= 25 && outfit.length > 1) {
+            newOutfit.shift()
+        }
+        
+        setOutfit(newOutfit)
+        setModalOpen(false);
+    }
 
     return (
-      <div>
-          {/* { isLoading && <div>날씨 데이터 받아오는 중</div> }
-          { isError && <div>에러남</div> }
-           */}
-           {
-                outfit &&
-                <ClothList componentNm='reccomend' list={outfit} isLoading={isLoading} func={changeCloth} btnTitle='딴거 입을래'/>
-           }
-           
-           <Modal
-                title="Vertically centered modal dialog"
-                centered
-                open={modalOpen}
-                // onOk={() => setModal2Open(false)}
-                onCancel={() => setModalOpen(false)}
-            >
+        <>
+            <Container>
+                { isLoading && <div>날씨 데이터 받아오는 중</div> }
                 {
-                    outerlist && selectedCategory === 'outer' ? <ClothList componentNm='reccomend-modal' list={outerlist} isLoading={isLoading} func={chooseCloth} btnTitle='이거 입을래'/>
-                    : toplist && selectedCategory === 'top' ? <ClothList componentNm='reccomend-modal' list={toplist} isLoading={isLoading} func={chooseCloth} btnTitle='이거 입을래'/>
-                    : bottomList && selectedCategory === 'bottom' && <ClothList componentNm='reccomend-modal' list={bottomList} isLoading={isLoading} func={chooseCloth} btnTitle='이거 입을래'/>
-
+                    outfit &&
+                    <>
+                        <Row style={{justifyContent:'center'}}>
+                            {
+                                outfit.map(item => 
+                                    <Col xs={24} sm={24} md={7} key={item.id} style={{marginRight: '10px'}}>
+                                        <h3>{item.category}</h3>
+                                        <RecommendCltohImage src={item.image} alt={item.title}/>
+                                        <Button shape="round" style={{position:'relative', bottom:'50px'}} 
+                                        onClick={() => changeCloth(item)}>
+                                            딴거 입을래 😥
+                                        </Button>
+                                    </Col>        
+                                )
+                            }
+                        </Row>
+                        <Row style={{display:'flex', justifyContent:'center', gap:'10px'}}>
+                            <Button size="large" shape="circle" onClick={randomizeCloth}><ReloadOutlined /></Button>
+                            <Button size="large"> 최종결정 <CheckOutlined /></Button>
+                        </Row>
+                    </>
+                }         
+            </Container>
+        <Modal title="오늘의 추천 목록 🧶" centered open={modalOpen} width={'70%'}
+            onCancel={() => setModalOpen(false)} footer={[]}
+            bodyStyle={{ overflow: 'auto', maxHeight: '60vh' }}
+        >
+            <Row style={{justifyContent:'center'}}>
+                {
+                    selectedCats.map( item => 
+                        <Col xs={12} sm={12} md={7} key={`modal-${item.id}`} style={{display:'grid', margin:'20px 10px 20px 0'}}>
+                            <ModalImage src={item.image} alt={item.title} />
+                            <Tooltip placement="top" title={item.title} >
+                                <Button style={{marginLeft:'auto', marginRight:'auto', marginTop:'10px'}}
+                                onClick={() => chooseCloth(item)}>이거 입을래</Button>
+                            </Tooltip>
+                        </Col>        
+                    )    
                 }
-            </Modal>
-          
-      </div>
+            </Row>
+        </Modal>
+    </>
     );
   }

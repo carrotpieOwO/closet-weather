@@ -4,6 +4,7 @@ import HourlyWeather from "./HoulyWeather";
 import { HourDataType, PositionProps, CurrentDataType } from "../../index.d";
 import RecommendClothes from "./RecommendClothes";
 import { useAuthContext } from "../../hooks/useAuthContext";
+import styled from "styled-components";
 
 
 interface WeatherProps {
@@ -13,6 +14,13 @@ interface WeatherProps {
   hourlyData: HourDataType[]
 }
 
+const Container = styled.div`
+  text-align: center;
+  justify-content: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`
 export default function Home({lat, lon}:PositionProps) {
   const { isLoading, isError, currentData, hourlyData }:WeatherProps = useWeather({lat, lon})
   const { state } = useAuthContext();
@@ -23,15 +31,18 @@ export default function Home({lat, lon}:PositionProps) {
         { isError && <div>에러남</div> }
         {
             currentData && hourlyData &&
-            <div style={{textAlign:'center', justifyContent:'center', display:'flex', flexDirection:'column', alignItems:'center'}}>
+            <Container>
                 <h1>{currentData.location}</h1>
                 <CurrentWeather data={currentData}/>
                 <HourlyWeather data={hourlyData}/>
-            </div>
+            </Container>
         }
-        {
-          currentData && state?.user && <RecommendClothes temp={currentData.currentTemp} uid={state.user.uid}/>
-        }
+         <Container>
+          {
+            currentData && state?.user && 
+              <RecommendClothes temp={currentData.currentTemp} uid={state.user.uid}/>
+          }
+        </Container>
         
     </div>
   );
