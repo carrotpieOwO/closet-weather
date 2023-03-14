@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
-import { useCollection } from "../../hooks/useCollection";
-import { ClothItem, QueryProps } from "../../index.d";
-import { getQuery, recommendCloths, updateItemInArray } from "../../utils/utils";
-import { findParentLabel } from "../../utils/category";
-import { Button, Col, Modal, Row, Tooltip, message } from "antd";
+import { ClothItem } from "../../index.d";
+import { Button, Col, Row, message } from "antd";
 import styled from "styled-components";
 import { ReloadOutlined, CheckOutlined } from '@ant-design/icons';
 import { useFirestore } from "../../hooks/useFirestore";
 import dayjs from "dayjs";
+import { useRecommend } from "../../hooks/useReccomend";
+import RecommendModal from "./RecommendModal";
 
 const Container = styled.div`
     width: 70%;
@@ -31,136 +30,24 @@ interface TempProps {
     uid: string
 }
 
-const getRandomCloth = ( clothList:ClothItem[]|[]) => {
-    if ( clothList.length > 0) {
-        return clothList[Math.floor(Math.random() * clothList.length)]
-    } else {
-        return null
-    }
-}
-
-const defaultClothItemList = [{
-    title: '',
-    image: '',
-    category: '',
-    subCategory: '',
-    brand: '',
-    uid: '',
-    id: '',
-}];
-
 export default function RecommendClothes({temp, uid}:TempProps) {
-    const [ myQuery, setMyQuery ] = useState<QueryProps[]>(getQuery({ uid: uid }));
-
-    const [ootdQuery, setOotdQuery] = useState<QueryProps[]>(getQuery({ uid: uid, path:'id', search: dayjs().format('YYYYMMDD')}))
-    
-    const { documents, error, isLoading } = useCollection('closet', myQuery)
-    const { documents : ootdDocument } = useCollection('ootd', ootdQuery)
+    const { outfit, randomizeCloth, changeCloth, chooseCloth, selectedCats } = useRecommend(uid, temp)
     const { setDocument, response : ootdResponse} = useFirestore('ootd');
     const { updateDocument, response : closetResponse } = useFirestore('closet');
     const [ messageApi, contextHolder ] = message.useMessage();
 
-    // 추천목록의 각 카테고리별로 옷을 변경할 때 필요한 추천리스트
-    const [ recommendedOuterList, setRecommendedOuterList ] = useState<ClothItem[]>([]);
-    const [ recommendedTopList, setRecommendedTopList ] = useState<ClothItem[]>([]);
-    const [ recommendedBottomList, setRecommendedBottomList ] = useState<ClothItem[]>([]);
-
-    // 추천되서 화면에 보여지는 outer, top, bottom
-    const [ outfit, setOutfit ] = useState<ClothItem[]>(defaultClothItemList)
-
     // 추천목록 보여주는 모달
     const [ modalOpen, setModalOpen ] = useState(false);
-
-    // 변경하기 클릭한 카테고리가 저장됨 => 모달오픈 시, 선택한 카테고리의 추천리스트를 보여주기 위함
-    const [ selectedCats, setSelectedCats ] = useState <ClothItem[]>(defaultClothItemList)
-
-    useEffect(() => {
-        if (documents) {
-            // documents를 불러오면, 의상리스트에서 기온에 맞는 outer, top, bottom리스트를 fitler한다.
-            const { outerList, topList, bottomList } = recommendCloths(temp, documents)
-            
-            // 각 카테고리리를 state로 관리한다. => 카테고리별 추천리스트 모달에서 사용됨
-            // 날이 더울 경우, outerlist는 생성되지 않으므로 예외처리해준다. 
-            outerList.length > 0 && setRecommendedOuterList(outerList)
-            setRecommendedTopList(topList)
-            setRecommendedBottomList(bottomList)
-        }
-    }, [documents])
-
-    useEffect(() => {
-        // 저장된 ootd가 있다면, 저장된걸 보여주고
-        if(ootdDocument && ootdDocument.length >= 1) {
-            console.log('ootdDocument', ootdDocument)
-            const savedOutfit = Object.values(ootdDocument[0])
-                .filter(item => item instanceof Object && 'title' in item) as ClothItem[]
-            
-            setOutfit(savedOutfit)
-        } else {
-            // 없으면 랜덤으로 보여준다. 
-            randomizeCloth()
-        }
-    }, [recommendedOuterList, recommendedTopList, recommendedBottomList, ootdDocument])
-
-
-    // 카테고리별로 하나씩 랜덤으로 선택하여 최종 추천리스트를 완성한다.
-    const randomizeCloth = () => {
-        const outfitList = [
-            getRandomCloth(recommendedOuterList), 
-            getRandomCloth(recommendedTopList), 
-            getRandomCloth(recommendedBottomList)
-        ];
-
-        // null인 카테고리 최종목록에서 제거
-        const newOutfitList: ClothItem[] = outfitList?.filter(outfit => outfit !== null) as ClothItem[]
-        
-        const keywords = ['나시', '슬립', '슬리브리스', 'sleeveless', '오버롤', '멜빵', 'overall', '뷔스티에', 'bustier']
-        const bottomIndex = newOutfitList.length === 3 ? 2 : 1 
-        
-        if(newOutfitList[bottomIndex]) {
-            const bottom = newOutfitList[bottomIndex]
-
-            if (bottom.category === '원피스' || bottom.category === '점프슈트') {
-                // 최종추천된 bottom이 나시원피스가 아닐경우 || 나시원피스이지만 25도 이상일 경우 top을 제거한다.
-                const hasKeyword = keywords.some(keyword => bottom.title.toLowerCase().includes(keyword))
-
-                if (!hasKeyword || (hasKeyword && temp >= 25)) {
-                  newOutfitList.splice(bottomIndex-1, 1)
-                }
-            }
-        }
-        setOutfit(newOutfitList)
+   
+    // 모달을 열고 선택한 카테고리의 추천리스트를 띄운다.
+    const openModal = (item:ClothItem) => {
+        changeCloth(item);
+        setModalOpen(true);
     }
 
-    // 카테고리별 추천리스트 모달창을 연다.
-    const changeCloth = (item:ClothItem) => {
-        if(item) {
-            const key = findParentLabel(item.category!);
-            
-            key === 'outer' &&  setSelectedCats(recommendedOuterList);
-            key === 'top' && setSelectedCats(recommendedTopList);
-            key === 'bottom' && setSelectedCats(recommendedBottomList);
-    
-            setModalOpen(true)
-        }
-    }
-
-    // 카테고리별 추천리스트에서 의상 선택 시, 최종 추천리스트를 업데이트한다.
-    const chooseCloth = (item:ClothItem) => {
-        const key = findParentLabel(item.category!);
-        let newOutfit = updateItemInArray(outfit, key ,item)
-        
-        // 최종 추천리스트가 1개이고(원피스일 경우), 원피스가 아닌 항목을 선택한다면, 상의를 최종추천리스트에 넣는다.
-        if(outfit.length === 1 && (item.category !== '원피스' && item.category !== '점프슈트' )) {
-            const top =  getRandomCloth(recommendedTopList);
-            top && newOutfit.unshift(top)
-        }
-        
-        // 최종 추천리스트가 1개 이상일 경우, 원피스를 선택하고 25도가 넘는다면 상의를 제거한다.
-        if ((item.category === '원피스' || item.category === '점프슈트' ) && temp >= 25 && outfit.length > 1) {
-            newOutfit.shift()
-        }
-        
-        setOutfit(newOutfit)
+    // 바꿀 아이템을 선택하고 모달을 닫는다.
+    const closeModal = (item:ClothItem) => {
+        chooseCloth(item);
         setModalOpen(false);
     }
 
@@ -171,7 +58,7 @@ export default function RecommendClothes({temp, uid}:TempProps) {
 
     useEffect(() => {
         if(ootdResponse.success) {            
-            // 착용한 아이템의 wearCount를 증가시킨다. 
+            // ootd를 성공적으로 저장하고 나면, 착용한 아이템의 wearCount를 증가시킨다. 
             const ids = outfit.map(cloth => cloth.id);
             ids.forEach(id => id && updateDocument(id));
 
@@ -183,7 +70,7 @@ export default function RecommendClothes({temp, uid}:TempProps) {
         
         ootdResponse.error && messageApi.open({
             type: 'error',
-            content: error,
+            content: ootdResponse.error as string,
         });
     }, [ootdResponse])
 
@@ -191,7 +78,7 @@ export default function RecommendClothes({temp, uid}:TempProps) {
     useEffect(() => {
         closetResponse.error && messageApi.open({
             type: 'error',
-            content: error,
+            content: closetResponse.error as string,
         });
     }, [closetResponse])
 
@@ -199,7 +86,6 @@ export default function RecommendClothes({temp, uid}:TempProps) {
         <>
             {contextHolder}
             <Container>
-                { isLoading && <div>날씨 데이터 받아오는 중</div> }
                 {
                     outfit &&
                     <>
@@ -209,9 +95,8 @@ export default function RecommendClothes({temp, uid}:TempProps) {
                                     <Col xs={24} sm={24} md={24} lg={7} key={item.id} style={{marginRight: '10px'}}>
                                         <h3>{item.category}</h3>
                                         <CoverImage image={item.image}/>
-                                        {/* <RecommendCltohImage src={item.image} alt={item.title}/> */}
                                         <Button shape="round" style={{position:'relative', bottom:'50px'}} 
-                                        onClick={() => changeCloth(item)}>
+                                        onClick={() => openModal(item)}>
                                             딴거 입을래 😥
                                         </Button>
                                     </Col>        
@@ -225,24 +110,8 @@ export default function RecommendClothes({temp, uid}:TempProps) {
                     </>
                 }         
             </Container>
-        <Modal title="오늘의 추천 목록 🧶" centered open={modalOpen} width={'70%'}
-            onCancel={() => setModalOpen(false)} footer={[]}
-            bodyStyle={{ overflow: 'auto', maxHeight: '60vh' }}
-        >
-            <Row style={{justifyContent:'center'}}>
-                {
-                    selectedCats.map( item => 
-                        <Col xs={12} sm={12} md={9} lg={7} key={`modal-${item.id}`} style={{display:'grid', margin:'20px 10px 20px 0'}}>
-                            <CoverImage image={item.image} />
-                            <Tooltip placement="top" title={item.title} >
-                                <Button style={{marginLeft:'auto', marginRight:'auto', marginTop:'10px'}}
-                                onClick={() => chooseCloth(item)}>이거 입을래</Button>
-                            </Tooltip>
-                        </Col>        
-                    )    
-                }
-            </Row>
-        </Modal>
+            <RecommendModal selectedCats={selectedCats} modalOpen={modalOpen} 
+                setModalOpen={setModalOpen} closeModal={closeModal} />
     </>
     );
   }
