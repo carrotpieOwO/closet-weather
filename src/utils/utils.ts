@@ -1,17 +1,28 @@
 import { FieldPath, WhereFilterOp } from "firebase/firestore";
 import { ClothItem } from "../index.d";
 
-interface QueryProps {
+interface Querys {
     fieldPath: string | FieldPath;
     whereFilterOp: WhereFilterOp;
     search?: string | string[]
 }
+interface QueryProps {
+    uid: string,
+    path?: string,
+    search?: string | string[]
+}
 // firebase 쿼리문 생성 함수
-export const getQuery = ({uid, search}: {uid: string, search?: string}):QueryProps[] => {
-    if (search && typeof search === 'string') {
-        return [{fieldPath: 'uid', whereFilterOp: '==', search: uid} , {fieldPath: 'category', whereFilterOp: '==', search: search}]
-    } else if(search && Array.isArray(search)) {
-        return [{fieldPath: 'uid', whereFilterOp: '==', search: uid} , {fieldPath: 'category', whereFilterOp: 'in', search: search}]
+export const getQuery = ({uid, path, search}: QueryProps):Querys[] => {
+    if (search && typeof search === 'string' && path) {
+        return [
+            {fieldPath: 'uid', whereFilterOp: '==', search: uid}, 
+            {fieldPath: path, whereFilterOp: '==', search: search}
+        ]
+    } else if(search && Array.isArray(search) && path) {
+        return [
+            {fieldPath: 'uid', whereFilterOp: '==', search: uid},
+            {fieldPath: path, whereFilterOp: 'in', search: search}
+        ]
     } else {
         return [{fieldPath: 'uid', whereFilterOp: '==', search: uid}]
     }
@@ -48,7 +59,7 @@ export const recommendCloths = (temp:number, documents:ClothItem[]):RecommendRet
         case temp <= 5 :
             outerList = filterCloth(documents, '점퍼', ['패딩', '다운', '푸퍼', 'puffer', 'down'], true)
             
-            let knitList = filterCloth(documents, '니트/스웨터', ['반팔', '숏', 'short'], false)
+            let knitList = filterCloth(documents, '니트/스웨터', ['반팔', '숏', 'short', 'half'], false)
             let tshirtList = filterCloth(documents, '티셔츠', ['후드', '기모', 'hood'], true)
             topList = [...knitList, ...tshirtList]
             
@@ -61,7 +72,7 @@ export const recommendCloths = (temp:number, documents:ClothItem[]):RecommendRet
             let coatList = filterCloth(documents, '코트', ['트렌치', 'trench', '바람막이', 'windbreak'], false)
             outerList = [...jumperList, ...coatList];
            
-            let knitList2 = filterCloth(documents, '니트/스웨터', ['반팔', '숏', 'short'], false)
+            let knitList2 = filterCloth(documents, '니트/스웨터', ['반팔', '숏', 'short', 'half'], false)
             let tshirtList2 = filterCloth(documents, '티셔츠', ['후드', 'hood', '맨투맨', 'sweatshirt'], true)
             topList = [...knitList2, ...tshirtList2]
 
@@ -74,7 +85,7 @@ export const recommendCloths = (temp:number, documents:ClothItem[]):RecommendRet
             let coatList2 = filterCloth(documents, '코트', ['트렌치', 'trench', '바람막이', 'windbreak'], true)
             outerList = [...jaketList, ...coatList2];
            
-            let knitList3 = filterCloth(documents, '니트/스웨터', ['반팔', '숏', 'short'], false)
+            let knitList3 = filterCloth(documents, '니트/스웨터', ['반팔', '숏', 'short', 'half'], false)
             let tshirtList3 = filterCloth(documents, '티셔츠', ['후드', 'hood', '맨투맨', 'sweatshirt'], true)
             topList = [...knitList3, ...tshirtList3]
 
@@ -99,7 +110,7 @@ export const recommendCloths = (temp:number, documents:ClothItem[]):RecommendRet
             outerList = filterCloth(documents, '카디건', [],false)
             
             let knitList5 = filterCloth(documents, '니트/스웨터', [], false)
-            let tshirtList5 = filterCloth(documents, '티셔츠', ['후드', 'hood', '기모', '반팔', '민소매', '나시', '슬리브리스', 'short', 'sleeveless'], false)
+            let tshirtList5 = filterCloth(documents, '티셔츠', ['후드', 'hood', '기모', '반팔', '민소매', '나시', '슬리브리스', 'short', 'sleeveless', 'half'], false)
             topList = [...knitList5, ...tshirtList5]
 
             bottomList = filterCloth(documents, ['바지', '청바지', '스커트'], [], false)
@@ -108,7 +119,7 @@ export const recommendCloths = (temp:number, documents:ClothItem[]):RecommendRet
         
         case temp >= 19 && temp <= 22 : 
             let tshirtList6 = filterCloth(documents, '티셔츠', ['후드', 'hood', '기모', '민소매', '나시', '슬리브리스', 'sleeveless'], false)
-            let shirtList = filterCloth(documents, ['블라우스/셔츠', '셔츠/남방'], ['반팔', 'short'], false)
+            let shirtList = filterCloth(documents, ['블라우스/셔츠', '셔츠/남방'], ['반팔', 'short', 'half'], false)
             topList = [...tshirtList6, ...shirtList]
 
             let pantsList = filterCloth(documents, ['바지', '청바지', '스커트'], ['기모'], false)
@@ -119,7 +130,7 @@ export const recommendCloths = (temp:number, documents:ClothItem[]):RecommendRet
             return { outerList, topList, bottomList }
 
         case temp >= 22 && temp <= 27 :  
-            let tshirtList7 = filterCloth(documents, '티셔츠', ['반팔', 'short', '크롭', 'crop'], true)
+            let tshirtList7 = filterCloth(documents, '티셔츠', ['반팔', 'short', '크롭', 'crop', 'half'], true)
             let shirtList2 = filterCloth(documents, ['블라우스/셔츠'], [], false)
             topList = [...tshirtList7, ...shirtList2]
 
@@ -130,7 +141,7 @@ export const recommendCloths = (temp:number, documents:ClothItem[]):RecommendRet
 
             return { outerList, topList, bottomList }
         case temp >= 27 :  
-            topList = filterCloth(documents, '티셔츠', ['반팔', 'short', '크롭', 'crop', '나시', '슬리브리스', '민소매', 'sleeveless'], true)
+            topList = filterCloth(documents, '티셔츠', ['반팔', 'short', '크롭', 'crop', '나시', '슬리브리스', '민소매', 'sleeveless', 'half'], true)
            
             let pantsList3 = filterCloth(documents, ['바지', '청바지', '스커트'], ['기모'], false)
             let onepiceList3 = filterCloth(documents, ['원피스'], ['기모'], false)

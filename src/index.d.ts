@@ -50,6 +50,7 @@ export interface ClothItem {
     brand: string;
     uid?:string;
     id?:string;
+    wearCount?:number;
 }
 export interface QueryProps {
     fieldPath: string | FieldPath;

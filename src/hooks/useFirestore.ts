@@ -1,4 +1,4 @@
-import { addDoc, collection, deleteDoc, doc, DocumentData, DocumentReference, FieldValue, increment, setDoc, updateDoc } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, increment, setDoc, updateDoc } from "firebase/firestore";
 import { useReducer } from "react"
 import { ClothItem } from "../index.d";
 import { appFireStore, timestamp } from "../firebase/config";
@@ -87,7 +87,7 @@ export const useFirestore = (transaction:string) => { // transaction: 저장할 
         try {
             const createdTime = timestamp.fromDate(new Date());
             const ref = doc(appFireStore, transaction, docId);
-            const docRef = await setDoc(ref, { ...content, uid, createdTime });
+            const docRef = await setDoc(ref, { ...content, uid, createdTime, id:docId });
             dispatch({ type: 'setDoc', payload: docRef })
         } catch (error: any) {
             dispatch({type: 'error', payload: error.message })

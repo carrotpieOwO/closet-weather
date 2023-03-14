@@ -17,18 +17,14 @@ const Container = styled.div`
     margin-left: auto;
     margin-right: auto;
 `
-const RecommendCltohImage = styled.img`
-    width:100%;
-    height: 100%;
-    max-height: 300px;
+const CoverImage = styled.div<{image:string}>`
+    overflow: hidden;
+    height: 330px; 
+    background-image: ${props => `url(${props.image})`};
+    background-size:cover;
     border-radius: 20px;
+    background-position: center;
     box-shadow: 0 1px 2px 0 rgb(0 0 0 / 3%), 0 1px 6px -1px rgb(0 0 0 / 2%), 0 2px 4px 0 rgb(0 0 0 / 2%);
-`
-const ModalImage = styled.img`
-    width: 100%;
-    height: 100%;
-    max-height: 200px;
-    border-radius: 20px;
 `
 interface TempProps {
     temp: number
@@ -55,7 +51,11 @@ const defaultClothItemList = [{
 
 export default function RecommendClothes({temp, uid}:TempProps) {
     const [ myQuery, setMyQuery ] = useState<QueryProps[]>(getQuery({ uid: uid }));
+
+    const [ootdQuery, setOotdQuery] = useState<QueryProps[]>(getQuery({ uid: uid, path:'id', search: dayjs().format('YYYYMMDD')}))
+    
     const { documents, error, isLoading } = useCollection('closet', myQuery)
+    const { documents : ootdDocument } = useCollection('ootd', ootdQuery)
     const { setDocument, response : ootdResponse} = useFirestore('ootd');
     const { updateDocument, response : closetResponse } = useFirestore('closet');
     const [ messageApi, contextHolder ] = message.useMessage();
@@ -63,7 +63,7 @@ export default function RecommendClothes({temp, uid}:TempProps) {
     // 추천목록의 각 카테고리별로 옷을 변경할 때 필요한 추천리스트
     const [ recommendedOuterList, setRecommendedOuterList ] = useState<ClothItem[]>([]);
     const [ recommendedTopList, setRecommendedTopList ] = useState<ClothItem[]>([]);
-    const [ bottomList, setBottomList ] = useState<ClothItem[]>([]);
+    const [ recommendedBottomList, setRecommendedBottomList ] = useState<ClothItem[]>([]);
 
     // 추천되서 화면에 보여지는 outer, top, bottom
     const [ outfit, setOutfit ] = useState<ClothItem[]>(defaultClothItemList)
@@ -83,17 +83,32 @@ export default function RecommendClothes({temp, uid}:TempProps) {
             // 날이 더울 경우, outerlist는 생성되지 않으므로 예외처리해준다. 
             outerList.length > 0 && setRecommendedOuterList(outerList)
             setRecommendedTopList(topList)
-            setBottomList(bottomList)
+            setRecommendedBottomList(bottomList)
         }
     }, [documents])
 
     useEffect(() => {
-        randomizeCloth()
-    }, [recommendedOuterList, recommendedTopList, bottomList])
+        // 저장된 ootd가 있다면, 저장된걸 보여주고
+        if(ootdDocument && ootdDocument.length >= 1) {
+            console.log('ootdDocument', ootdDocument)
+            const savedOutfit = Object.values(ootdDocument[0])
+                .filter(item => item instanceof Object && 'title' in item) as ClothItem[]
+            
+            setOutfit(savedOutfit)
+        } else {
+            // 없으면 랜덤으로 보여준다. 
+            randomizeCloth()
+        }
+    }, [recommendedOuterList, recommendedTopList, recommendedBottomList, ootdDocument])
+
 
     // 카테고리별로 하나씩 랜덤으로 선택하여 최종 추천리스트를 완성한다.
     const randomizeCloth = () => {
-        const outfitList = [getRandomCloth(recommendedOuterList), getRandomCloth(recommendedTopList), getRandomCloth(bottomList)];
+        const outfitList = [
+            getRandomCloth(recommendedOuterList), 
+            getRandomCloth(recommendedTopList), 
+            getRandomCloth(recommendedBottomList)
+        ];
 
         // null인 카테고리 최종목록에서 제거
         const newOutfitList: ClothItem[] = outfitList?.filter(outfit => outfit !== null) as ClothItem[]
@@ -123,7 +138,7 @@ export default function RecommendClothes({temp, uid}:TempProps) {
             
             key === 'outer' &&  setSelectedCats(recommendedOuterList);
             key === 'top' && setSelectedCats(recommendedTopList);
-            key === 'bottom' && setSelectedCats(bottomList);
+            key === 'bottom' && setSelectedCats(recommendedBottomList);
     
             setModalOpen(true)
         }
@@ -191,9 +206,10 @@ export default function RecommendClothes({temp, uid}:TempProps) {
                         <Row style={{justifyContent:'center'}}>
                             {
                                 outfit.map(item => 
-                                    <Col xs={24} sm={24} md={7} key={item.id} style={{marginRight: '10px'}}>
+                                    <Col xs={24} sm={24} md={24} lg={7} key={item.id} style={{marginRight: '10px'}}>
                                         <h3>{item.category}</h3>
-                                        <RecommendCltohImage src={item.image} alt={item.title}/>
+                                        <CoverImage image={item.image}/>
+                                        {/* <RecommendCltohImage src={item.image} alt={item.title}/> */}
                                         <Button shape="round" style={{position:'relative', bottom:'50px'}} 
                                         onClick={() => changeCloth(item)}>
                                             딴거 입을래 😥
@@ -216,8 +232,8 @@ export default function RecommendClothes({temp, uid}:TempProps) {
             <Row style={{justifyContent:'center'}}>
                 {
                     selectedCats.map( item => 
-                        <Col xs={12} sm={12} md={7} key={`modal-${item.id}`} style={{display:'grid', margin:'20px 10px 20px 0'}}>
-                            <ModalImage src={item.image} alt={item.title} />
+                        <Col xs={12} sm={12} md={9} lg={7} key={`modal-${item.id}`} style={{display:'grid', margin:'20px 10px 20px 0'}}>
+                            <CoverImage image={item.image} />
                             <Tooltip placement="top" title={item.title} >
                                 <Button style={{marginLeft:'auto', marginRight:'auto', marginTop:'10px'}}
                                 onClick={() => chooseCloth(item)}>이거 입을래</Button>
