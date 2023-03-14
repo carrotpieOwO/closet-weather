@@ -3,9 +3,11 @@ import { useCollection } from "../../hooks/useCollection";
 import { ClothItem, QueryProps } from "../../index.d";
 import { getQuery, recommendCloths, updateItemInArray } from "../../utils/utils";
 import { findParentLabel } from "../../utils/category";
-import { Button, Col, Modal, Row, Tooltip } from "antd";
+import { Button, Col, Modal, Row, Tooltip, message } from "antd";
 import styled from "styled-components";
 import { ReloadOutlined, CheckOutlined } from '@ant-design/icons';
+import { useFirestore } from "../../hooks/useFirestore";
+import dayjs from "dayjs";
 
 const Container = styled.div`
     width: 70%;
@@ -34,7 +36,6 @@ interface TempProps {
 }
 
 const getRandomCloth = ( clothList:ClothItem[]|[]) => {
-    console.log('clothList', clothList)
     if ( clothList.length > 0) {
         return clothList[Math.floor(Math.random() * clothList.length)]
     } else {
@@ -55,6 +56,9 @@ const defaultClothItemList = [{
 export default function RecommendClothes({temp, uid}:TempProps) {
     const [ myQuery, setMyQuery ] = useState<QueryProps[]>(getQuery({ uid: uid }));
     const { documents, error, isLoading } = useCollection('closet', myQuery)
+    const { setDocument, response : ootdResponse} = useFirestore('ootd');
+    const { updateDocument, response : closetResponse } = useFirestore('closet');
+    const [ messageApi, contextHolder ] = message.useMessage();
 
     // 추천목록의 각 카테고리별로 옷을 변경할 때 필요한 추천리스트
     const [ recommendedOuterList, setRecommendedOuterList ] = useState<ClothItem[]>([]);
@@ -145,8 +149,40 @@ export default function RecommendClothes({temp, uid}:TempProps) {
         setModalOpen(false);
     }
 
+    // 오늘 입은 옷 기록
+    const saveOotd = (item:ClothItem[]) => {
+        setDocument( dayjs().format('YYYYMMDD'), uid, { ...item})
+    }
+
+    useEffect(() => {
+        if(ootdResponse.success) {            
+            // 착용한 아이템의 wearCount를 증가시킨다. 
+            const ids = outfit.map(cloth => cloth.id);
+            ids.forEach(id => id && updateDocument(id));
+
+            messageApi.open({
+                type: 'success',
+                content: '성공적으로 저장하였습니다!',
+            });
+        }
+        
+        ootdResponse.error && messageApi.open({
+            type: 'error',
+            content: error,
+        });
+    }, [ootdResponse])
+
+
+    useEffect(() => {
+        closetResponse.error && messageApi.open({
+            type: 'error',
+            content: error,
+        });
+    }, [closetResponse])
+
     return (
         <>
+            {contextHolder}
             <Container>
                 { isLoading && <div>날씨 데이터 받아오는 중</div> }
                 {
@@ -168,7 +204,7 @@ export default function RecommendClothes({temp, uid}:TempProps) {
                         </Row>
                         <Row style={{display:'flex', justifyContent:'center', gap:'10px'}}>
                             <Button size="large" shape="circle" onClick={randomizeCloth}><ReloadOutlined /></Button>
-                            <Button size="large"> 최종결정 <CheckOutlined /></Button>
+                            <Button size="large" onClick={() => saveOotd(outfit)}> 최종결정 <CheckOutlined /></Button>
                         </Row>
                     </>
                 }         

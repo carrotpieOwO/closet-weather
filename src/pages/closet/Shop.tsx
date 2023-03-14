@@ -67,7 +67,6 @@ export default function Shop ({ open, setOpen, uid }:ShopProps) {
     }
 
     useEffect(() => {
-        console.log('response', response)
         response.success && messageApi.open({
             type: 'success',
             content: '성공적으로 저장하였습니다!',

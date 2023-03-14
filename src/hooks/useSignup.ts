@@ -22,7 +22,6 @@ export const useSignup = () => {
         createUserWithEmailAndPassword(appAuth, email, password)
             .then((userCredential) => {
                 const user = userCredential.user;
-                console.log('user', user)
 
                 if(!user) {
                     throw new Error('회원가입 실패');

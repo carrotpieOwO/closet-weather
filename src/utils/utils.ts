@@ -92,8 +92,6 @@ export const recommendCloths = (temp:number, documents:ClothItem[]):RecommendRet
             topList = [...knitList4, ...tshirtList4]
 
             bottomList = filterCloth(documents, ['바지', '청바지', '스커트'], ['반바지', 'short'], false)
-        
-            console.log('여기로 와야하는거 아님?', outerList, topList, bottomList)
 
             return { outerList, topList, bottomList }
 

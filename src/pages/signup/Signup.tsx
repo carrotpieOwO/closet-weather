@@ -31,14 +31,8 @@ export default function Signup() {
     const { error, isLoading, signup } = useSignup();
     const [ form ] = useForm();
 
-    const onFinish = (values: any) => {
-        console.log('Success:', values);
-        
+    const onFinish = (values: any) => {  
         signup( values );
-    };
-      
-    const onFinishFailed = (errorInfo: any) => {
-        console.log('Failed:', errorInfo);
     };
 
     const validatePassword = (_:any, value:string) => {
@@ -68,7 +62,6 @@ export default function Signup() {
                     style={{margin:'auto', width:'80%'}}
                     size="large"
                     onFinish={onFinish}
-                    onFinishFailed={onFinishFailed}
                     autoComplete="off"
                     validateMessages={validateMessages}
                 >
