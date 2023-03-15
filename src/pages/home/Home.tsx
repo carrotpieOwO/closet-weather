@@ -5,6 +5,7 @@ import { HourDataType, PositionProps, CurrentDataType } from "../../index.d";
 import RecommendClothes from "./RecommendClothes";
 import { useAuthContext } from "../../hooks/useAuthContext";
 import styled from "styled-components";
+import RecommendForGuest from "./RecommendForGuest";
 
 
 interface WeatherProps {
@@ -41,6 +42,10 @@ export default function Home({lat, lon}:PositionProps) {
           {
             currentData && state?.user && 
               <RecommendClothes temp={currentData.currentTemp} uid={state.user.uid}/>
+          }
+          {
+            currentData && !state?.user &&
+              <RecommendForGuest temp={currentData.currentTemp} />
           }
         </Container>
         

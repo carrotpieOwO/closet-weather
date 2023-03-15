@@ -38,9 +38,11 @@ export const useRecommend = (uid:string, temp:number) => {
     const [ recommendedTopList, setRecommendedTopList ] = useState<ClothItem[]>([]);
     const [ recommendedBottomList, setRecommendedBottomList ] = useState<ClothItem[]>([]);
 
-
     // 변경하기 클릭한 카테고리가 저장됨 => 모달오픈 시, 선택한 카테고리의 추천리스트를 보여주기 위함
     const [ selectedCats, setSelectedCats ] = useState <ClothItem[]>(defaultClothItemList)
+
+    // 선택된 코디에 따른 메시지
+    const [ stateMessage, setStateMessage ] = useState('');
 
     useEffect(() => {
         if (closetDocuments) {
@@ -49,9 +51,9 @@ export const useRecommend = (uid:string, temp:number) => {
             
             // 각 카테고리리를 state로 관리한다. => 카테고리별 추천리스트 모달에서 사용됨
             // 날이 더울 경우, outerlist는 생성되지 않으므로 예외처리해준다. 
-            outerList.length > 0 && setRecommendedOuterList(outerList)
-            setRecommendedTopList(topList)
-            setRecommendedBottomList(bottomList)
+            outerList.length > 0 && Array.isArray(outerList) && setRecommendedOuterList(outerList)
+            Array.isArray(topList) && setRecommendedTopList(topList)
+            Array.isArray(bottomList) && setRecommendedBottomList(bottomList)
         }
     }, [closetDocuments])
 
@@ -63,9 +65,11 @@ export const useRecommend = (uid:string, temp:number) => {
                 .filter(item => item instanceof Object && 'title' in item) as ClothItem[]
             
             setOutfit(savedOutfit)
+            setStateMessage('오늘 입은 옷이에요! ✨')
         } else {
             // 없으면 랜덤으로 보여준다. 
             randomizeCloth()
+            setStateMessage('오늘의 추천 옷!')
         }
     }, [recommendedOuterList, recommendedTopList, recommendedBottomList, ootdDocument])
     
@@ -94,7 +98,8 @@ export const useRecommend = (uid:string, temp:number) => {
                 }
             }
         }
-        setOutfit(newOutfitList)
+        setOutfit(newOutfitList);
+        setStateMessage('랜덤으로 골라봐요!');
     }
     
     // 카테고리별 추천리스트 모달창에 표시될 데이터
@@ -124,7 +129,8 @@ export const useRecommend = (uid:string, temp:number) => {
         }
         
         setOutfit(newOutfit)
+        temp < 8 && setStateMessage('히트텍과 기타 방한용품도 함께 착용해주세요 🥶')
     }
 
-    return { outfit, randomizeCloth, changeCloth, chooseCloth, selectedCats }
+    return { outfit, randomizeCloth, changeCloth, chooseCloth, selectedCats, stateMessage }
 }

@@ -25,13 +25,21 @@ const CoverImage = styled.div<{image:string}>`
     background-position: center;
     box-shadow: 0 1px 2px 0 rgb(0 0 0 / 3%), 0 1px 6px -1px rgb(0 0 0 / 2%), 0 2px 4px 0 rgb(0 0 0 / 2%);
 `
+const Description = styled.div`
+    width: 90%;
+    background-color: rgba(224, 234, 252, .6);
+    border-radius: 30px;
+    color: #374957;
+    padding: 15px;
+    margin: 0 auto 25px auto;
+`
 interface TempProps {
     temp: number
     uid: string
 }
 
 export default function RecommendClothes({temp, uid}:TempProps) {
-    const { outfit, randomizeCloth, changeCloth, chooseCloth, selectedCats } = useRecommend(uid, temp)
+    const { outfit, randomizeCloth, changeCloth, chooseCloth, selectedCats, stateMessage } = useRecommend(uid, temp)
     const { setDocument, response : ootdResponse} = useFirestore('ootd');
     const { updateDocument, response : closetResponse } = useFirestore('closet');
     const [ messageApi, contextHolder ] = message.useMessage();
@@ -103,6 +111,7 @@ export default function RecommendClothes({temp, uid}:TempProps) {
                                 )
                             }
                         </Row>
+                        <Description>{stateMessage}</Description>
                         <Row style={{display:'flex', justifyContent:'center', gap:'10px'}}>
                             <Button size="large" shape="circle" onClick={randomizeCloth}><ReloadOutlined /></Button>
                             <Button size="large" onClick={() => saveOotd(outfit)}> 최종결정 <CheckOutlined /></Button>
