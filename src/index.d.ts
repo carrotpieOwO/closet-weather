@@ -57,3 +57,10 @@ export interface QueryProps {
     whereFilterOp: WhereFilterOp;
     search?: string | string[] | Date
 }
+export interface SelectedDaysOotd {
+    ootd: ClothItem[];
+    time?: string;
+    location?: string;
+    icon?: string;
+    temp?: number;
+}

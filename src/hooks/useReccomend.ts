@@ -69,7 +69,7 @@ export const useRecommend = (uid:string, temp:number) => {
         } else {
             // 없으면 랜덤으로 보여준다. 
             randomizeCloth()
-            setStateMessage('오늘의 추천 옷!')
+            setStateMessage('오늘의 추천 옷! 👀')
         }
     }, [recommendedOuterList, recommendedTopList, recommendedBottomList, ootdDocument])
     
