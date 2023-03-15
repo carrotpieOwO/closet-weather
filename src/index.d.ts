@@ -55,5 +55,5 @@ export interface ClothItem {
 export interface QueryProps {
     fieldPath: string | FieldPath;
     whereFilterOp: WhereFilterOp;
-    search?: string | string[]
+    search?: string | string[] | Date
 }

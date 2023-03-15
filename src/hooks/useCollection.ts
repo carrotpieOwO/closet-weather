@@ -1,13 +1,8 @@
 import { collection, FieldPath, onSnapshot, orderBy, query, QueryFieldFilterConstraint, QuerySnapshot, where, WhereFilterOp } from "firebase/firestore"
 import { useEffect, useState } from "react"
-import { ClothItem } from "../index.d";
+import { ClothItem, QueryProps } from "../index.d";
 import { appFireStore } from "../firebase/config"
 
-interface QueryProps {
-    fieldPath: string | FieldPath;
-    whereFilterOp: WhereFilterOp;
-    search?: string | string[]
-}
 export const useCollection = (transaction:string, myQuery?:QueryProps[]) => {
     const [ documents, setDocuments ] = useState<ClothItem[] | null>(null);
     const [ error, setError ] = useState(null);

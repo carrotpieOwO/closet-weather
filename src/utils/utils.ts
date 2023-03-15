@@ -1,29 +1,44 @@
-import { FieldPath, WhereFilterOp } from "firebase/firestore";
-import { ClothItem } from "../index.d";
+import { WhereFilterOp } from "firebase/firestore";
+import { ClothItem, QueryProps } from "../index.d";
 import clothIcons from "./clothIcons";
 
-interface Querys {
-    fieldPath: string | FieldPath;
-    whereFilterOp: WhereFilterOp;
-    search?: string | string[]
-}
-interface QueryProps {
+interface Props {
     uid: string,
     path?: string,
-    search?: string | string[]
+    where?: WhereFilterOp | WhereFilterOp[],
+    search?: string | string[] | Date[]
 }
+
+function isStringrArray(arr: any[]): arr is string[] {
+    return arr.every((item) => typeof item === "string");
+}
+
+function isDateArray(arr: any[]): arr is Date[] {
+    return arr.every((item) => item instanceof Date);
+}
+
 // firebase 쿼리문 생성 함수
-export const getQuery = ({uid, path, search}: QueryProps):Querys[] => {
+export const getQuery = ({uid, path, where, search}: Props):QueryProps[] => {
     if (search && typeof search === 'string' && path) {
         return [
             {fieldPath: 'uid', whereFilterOp: '==', search: uid}, 
             {fieldPath: path, whereFilterOp: '==', search: search}
         ]
-    } else if(search && Array.isArray(search) && path) {
+    } else if(search && Array.isArray(search) && path && !where && isStringrArray(search)) {
         return [
             {fieldPath: 'uid', whereFilterOp: '==', search: uid},
             {fieldPath: path, whereFilterOp: 'in', search: search}
         ]
+    } else if(search && Array.isArray(search) && path && Array.isArray(where) && isDateArray(search)) {
+        let arrayQ:QueryProps[] = [{fieldPath: 'uid', whereFilterOp: '==', search: uid}]
+        for(let i = 0; i < where.length;  i++) {
+            arrayQ.push({
+                fieldPath: path,
+                whereFilterOp: where[i],
+                search: search[i]
+            })
+        }
+        return arrayQ
     } else {
         return [{fieldPath: 'uid', whereFilterOp: '==', search: uid}]
     }

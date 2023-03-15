@@ -1,7 +1,8 @@
 
-import { Col, Row } from "antd";
+import { Col, Row, Typography } from "antd";
 import styled from "styled-components";
 import { recommendCloths } from "../../utils/utils"
+import { InfoCircleTwoTone } from '@ant-design/icons';
 
 const Container = styled(Row)`
     justify-content: center;
@@ -10,13 +11,15 @@ const Container = styled(Row)`
 `
 const Description = styled.div`
     width: 65%;
-    background-color: rgba(234, 236, 198, .4);
+    background-color: rgba(238, 205, 163, .5);
     color: #374957;
-    border-radius: 30px;
-    padding: 15px;
+    border-radius: 10px;
+    padding: 30px 15px;
     margin-top: 50px;
     box-shadow: 0 1px 2px 0 rgb(0 0 0 / 3%), 0 1px 6px -1px rgb(0 0 0 / 2%), 0 2px 4px 0 rgb(0 0 0 / 2%);
 `
+const { Title } = Typography;
+
 export default function RecommendForGuest ({temp}:{temp:number}) {
 
     const cloths = recommendCloths(temp);
@@ -27,7 +30,13 @@ export default function RecommendForGuest ({temp}:{temp:number}) {
     console.log('cloths',description)
     return (
         <>
-            <Description>{ cloths.description }</Description>
+            <Description>
+                <Title level={5} style={{marginTop:0}}>
+                    <InfoCircleTwoTone  twoToneColor="#eb2f96" style={{marginRight: '.5em'}}/>
+                    로그인하면 등록한 옷으로 추천해줍니다! 
+                </Title>
+                🧢 오늘의 추천 의상: { cloths.description }
+            </Description>
             
             <Container>
                 {

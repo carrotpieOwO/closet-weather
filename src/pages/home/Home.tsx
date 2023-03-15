@@ -41,7 +41,7 @@ export default function Home({lat, lon}:PositionProps) {
          <Container>
           {
             currentData && state?.user && 
-              <RecommendClothes temp={currentData.currentTemp} uid={state.user.uid}/>
+              <RecommendClothes temp={currentData} uid={state.user.uid}/>
           }
           {
             currentData && !state?.user &&

@@ -99,7 +99,7 @@ export const useRecommend = (uid:string, temp:number) => {
             }
         }
         setOutfit(newOutfitList);
-        setStateMessage('랜덤으로 골라봐요!');
+        setStateMessage('랜덤으로 골라봐요! 🎲');
     }
     
     // 카테고리별 추천리스트 모달창에 표시될 데이터
@@ -129,7 +129,8 @@ export const useRecommend = (uid:string, temp:number) => {
         }
         
         setOutfit(newOutfit)
-        temp < 8 && setStateMessage('히트텍과 기타 방한용품도 함께 착용해주세요 🥶')
+        temp < 8 ? setStateMessage('히트텍과 기타 방한용품도 함께 착용해주세요 🥶')
+        : setStateMessage('좋은 선택입니다 😊')
     }
 
     return { outfit, randomizeCloth, changeCloth, chooseCloth, selectedCats, stateMessage }

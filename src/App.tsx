@@ -9,6 +9,7 @@ import Nav from './components/Nav';
 import { useAuthContext } from './hooks/useAuthContext';
 import Closet from './pages/closet/Closet';
 import styled from 'styled-components';
+import OotdCalendar from './pages/calendar/OotdCalendar';
 
 const Container = styled.div`
   background: linear-gradient(to bottom, rgb(43, 192, 228), rgb(234, 236, 198));
@@ -42,7 +43,7 @@ function App() {
           <Route path='/login' element={state?.user ? <Navigate replace={true} to="/" /> : <Login/>} />
           <Route path='/signup' element={state?.user ? <Navigate replace={true} to="/" /> : <Signup/>} />
           <Route path='/closet' element={ state?.user && <Closet/>}/>
-          <Route path='/calender' />
+          <Route path='/calendar'element={state?.user?.uid && <OotdCalendar uid={state.user.uid}/>} />
         </Routes>
       </BrowserRouter>
     </Container>
