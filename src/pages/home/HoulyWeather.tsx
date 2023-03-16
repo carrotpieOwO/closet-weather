@@ -23,9 +23,6 @@ export default function HourlyWeather({data}:HourDataProps) {
             { 
                 data.map( d => 
                     <Col key={d.time} xs={24} sm={8} md={4}>
-                        {
-                            ! dayjs(d.time).isSame(dayjs(), 'day') && <div>{dayjs(d.time).format('MM/DD')}</div>
-                        }
                         <div style={{fontSize:'14px'}}>{dayjs(d.time).format('HH')}시</div>
                         <img src={`https://openweathermap.org/img/wn/${d.icon}.png`} alt={d.description} />
                         <div>{d.temp}°</div>       

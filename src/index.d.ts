@@ -64,3 +64,7 @@ export interface SelectedDaysOotd {
     icon?: string;
     temp?: number;
 }
+export interface DefaultClothType {
+    image: string;
+    description: string[];
+}

@@ -26,8 +26,7 @@ export default function RecommendForGuest ({temp}:{temp:number}) {
     const  visibleClothesList= Object.entries(cloths)
         .filter(([ key, value ]) => value !== 'not-exist' && key !== 'description')
         .map(([ key, value ]) => value)
-    const description = Object.keys(cloths).filter(key => key === 'description');
-    console.log('cloths',description)
+    
     return (
         <>
             <Description>

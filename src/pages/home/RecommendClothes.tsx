@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { ClothItem, CurrentDataType } from "../../index.d";
-import { Button, Col, Row, message, Alert } from "antd";
+import { Button, Col, Row, message, Alert, Tag } from "antd";
 import styled from "styled-components";
 import { ReloadOutlined, CheckOutlined } from '@ant-design/icons';
 import { useFirestore } from "../../hooks/useFirestore";
@@ -25,17 +25,25 @@ const CoverImage = styled.div<{image:string}>`
     background-position: center;
     box-shadow: 0 1px 2px 0 rgb(0 0 0 / 3%), 0 1px 6px -1px rgb(0 0 0 / 2%), 0 2px 4px 0 rgb(0 0 0 / 2%);
 `
+const MyAlert = styled(Alert)`
+    margin: 0 auto 10px auto;
+    width: 90%;
+    .ant-alert-content {
+        flex: none;
+    }
+`
 interface TempProps {
     temp: CurrentDataType
     uid: string
 }
 
 export default function RecommendClothes({temp, uid}:TempProps) {
-    const { outfit, randomizeCloth, changeCloth, chooseCloth, selectedCats, stateMessage } = useRecommend(uid, temp.currentTemp)
+    const { outfit, randomizeCloth, changeCloth, chooseCloth, selectedCats, stateMessage, warnMessage } = useRecommend(uid, 30)
     const { setDocument, response : ootdResponse} = useFirestore('ootd');
     const { updateDocument, response : closetResponse } = useFirestore('closet');
     const [ messageApi, contextHolder ] = message.useMessage();
-
+    // ootd 저장 및 랜덤버튼 보여주기 여부
+    const [ showBtns, setShowBtns ] = useState(false);
     // 추천목록 보여주는 모달
     const [ modalOpen, setModalOpen ] = useState(false);
    
@@ -55,6 +63,12 @@ export default function RecommendClothes({temp, uid}:TempProps) {
     const saveOotd = (item:ClothItem[]) => {
         setDocument( dayjs().format('YYYYMMDD'), uid, { ...item, ...temp})
     }
+
+    // outfit이 모드 string일 경우(추천된 옷이 없을 경우) 랜덤/저장하기 버튼 숨김처리
+    useEffect(() => {
+        const isAllString = outfit.every((item) => typeof item === 'string');
+        setShowBtns(!isAllString)
+    }, [outfit])
 
     useEffect(() => {
         if(ootdResponse.success) {            
@@ -82,6 +96,18 @@ export default function RecommendClothes({temp, uid}:TempProps) {
         });
     }, [closetResponse])
 
+    // warn message(추천할 옷이 없을 경우 발생) 스타일링
+    const createWarnMessageStyle = (msg:{head:string, content:string[]}) => {
+        return (
+            <div style={{display: 'flex'}}>
+                <div>{msg.head}&nbsp;</div>
+                {
+                    msg.content.map( (content, i) => <Tag key={`warn-${i}`}>{content}</Tag>)
+                } 입니다.
+            </div>
+        )
+    }
+
     return (
         <>
             {contextHolder}
@@ -89,9 +115,14 @@ export default function RecommendClothes({temp, uid}:TempProps) {
                 {
                     outfit &&
                     <>
-                        <Row style={{justifyContent:'center'}}>
+                        <Row style={{justifyContent:'center', alignItems: 'center'}}>
                             {
-                                outfit.map(item => 
+                                outfit.map((item, i) => 
+                                    typeof item === 'string' ?
+                                    <Col xs={24} sm={24} md={24} lg={7} key={i} style={{marginRight: '10px'}}>
+                                        <CoverImage image={item} style={{marginBottom: '20px'}}/>
+                                    </Col>
+                                    :
                                     <Col xs={24} sm={24} md={24} lg={7} key={item.id} style={{marginRight: '10px'}}>
                                         <h3>{item.category}</h3>
                                         <CoverImage image={item.image}/>
@@ -103,11 +134,20 @@ export default function RecommendClothes({temp, uid}:TempProps) {
                                 )
                             }
                         </Row>
-                        <Alert message={stateMessage} type="success" style={{ width: '90%', margin: '0 auto 30px auto'}}/>
-                        <Row style={{display:'flex', justifyContent:'center', gap:'10px'}}>
-                            <Button size="large" shape="circle" onClick={randomizeCloth}><ReloadOutlined /></Button>
-                            <Button size="large" onClick={() => saveOotd(outfit)}> 최종결정 <CheckOutlined /></Button>
-                        </Row>
+                        {
+                            warnMessage &&
+                                warnMessage.map( msg => 
+                                    <MyAlert key={msg.head} message={createWarnMessageStyle(msg)} type="warning" showIcon/>        
+                                )
+                        }
+                        <Alert message={stateMessage} type="success" style={{ width: '90%', margin: '0 auto 30px auto' }}/>
+                        { 
+                            showBtns &&
+                            <Row style={{display:'flex', justifyContent:'center', gap:'10px'}}>
+                                <Button size="large" shape="circle" onClick={randomizeCloth}><ReloadOutlined /></Button>
+                                <Button size="large" onClick={() => saveOotd(outfit)}> 최종결정 <CheckOutlined /></Button>
+                            </Row>
+                        }
                     </>
                 }         
             </Container>
