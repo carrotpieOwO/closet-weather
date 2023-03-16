@@ -38,7 +38,7 @@ interface TempProps {
 }
 
 export default function RecommendClothes({temp, uid}:TempProps) {
-    const { outfit, randomizeCloth, changeCloth, chooseCloth, selectedCats, stateMessage, warnMessage } = useRecommend(uid, 30)
+    const { outfit, randomizeCloth, changeCloth, chooseCloth, selectedCats, stateMessage, warnMessage } = useRecommend(uid, temp.currentTemp)
     const { setDocument, response : ootdResponse} = useFirestore('ootd');
     const { updateDocument, response : closetResponse } = useFirestore('closet');
     const [ messageApi, contextHolder ] = message.useMessage();

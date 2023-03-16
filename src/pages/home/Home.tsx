@@ -6,15 +6,13 @@ import RecommendClothes from "./RecommendClothes";
 import { useAuthContext } from "../../hooks/useAuthContext";
 import styled from "styled-components";
 import RecommendForGuest from "./RecommendForGuest";
-
-
+import { Skeleton } from "antd";
 interface WeatherProps {
   isLoading: boolean
   isError: boolean
   currentData: CurrentDataType | undefined
   hourlyData: HourDataType[]
 }
-
 const Container = styled.div`
   text-align: center;
   justify-content: center;
@@ -23,12 +21,16 @@ const Container = styled.div`
   align-items: center;
 `
 export default function Home({lat, lon}:PositionProps) {
-  const { isLoading, isError, currentData, hourlyData }:WeatherProps = useWeather({lat, lon})
+  let { isLoading, isError, currentData, hourlyData }:WeatherProps = useWeather({lat, lon})
   const { state } = useAuthContext();
 
   return (
     <div>
-        { isLoading && <div>날씨 데이터 받아오는 중</div> }
+        { isLoading && 
+          <Container style={{height: 'calc(100vh - 63px)', margin: '0 auto', width: '80%'}}>
+            <Skeleton active /> 
+          </Container>
+        }
         { isError && <div>에러남</div> }
         {
             currentData && hourlyData &&

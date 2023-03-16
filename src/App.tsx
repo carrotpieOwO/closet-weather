@@ -10,6 +10,7 @@ import { useAuthContext } from './hooks/useAuthContext';
 import Closet from './pages/closet/Closet';
 import styled from 'styled-components';
 import OotdCalendar from './pages/calendar/OotdCalendar';
+import Loading from './pages/home/Loading';
 
 const Container = styled.div`
   background: linear-gradient(to bottom, rgb(43, 192, 228), rgb(234, 236, 198));
@@ -39,7 +40,7 @@ function App() {
       <BrowserRouter>
         <Nav />
         <Routes>
-          <Route path='/' element={lat && lon ? <Home lat={lat} lon={lon} /> : <div>loading...</div>} />
+          <Route path='/' element={lat && lon ? <Home lat={lat} lon={lon} /> : <Loading/> } />
           <Route path='/login' element={state?.user ? <Navigate replace={true} to="/" /> : <Login/>} />
           <Route path='/signup' element={state?.user ? <Navigate replace={true} to="/" /> : <Signup/>} />
           <Route path='/closet' element={ state?.user && <Closet/>}/>

@@ -1,5 +1,5 @@
 import { ClothItem } from "../../index.d";
-import { Button, Card, List } from 'antd';
+import { Button, Card, List, Popconfirm } from 'antd';
 import styled from "styled-components";
 import Meta from "antd/es/card/Meta";
 
@@ -39,9 +39,26 @@ export default function ClothList ({ list, isLoading, func, btnTitle, componentN
                 <List.Item key={`${componentNm}-${item.id}`}>
                     <Card cover={<CoverImage image={item.image}/>}>
                         <Meta title={item.title}/>
-                        <Button style={{marginTop:'30px', width:'100%'}} onClick={() => func(item)}>
-                            { btnTitle }
-                        </Button>
+                        {
+                            btnTitle === '삭제' ?
+                            
+                            <Popconfirm
+                                title="Delete the task"
+                                description="해당 상품을 삭제하시겠습니까?"
+                                onConfirm={() => func(item)}
+                                okText="Yes"
+                                cancelText="No"
+                            >
+                                <Button style={{marginTop:'30px', width:'100%'}}>
+                                    { btnTitle }
+                                </Button>
+                            </Popconfirm>
+                            :
+                            <Button style={{marginTop:'30px', width:'100%'}} onClick={() => func(item)}>
+                                { btnTitle }
+                            </Button>
+                        }
+                       
                     </Card>
                 </List.Item>
             )}
