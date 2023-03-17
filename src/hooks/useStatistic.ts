@@ -7,15 +7,14 @@ interface PieProps {
     name: string,
     value: number
 }
-const createPieOption = (data:PieProps[]) => {
+const createPieOption = (data:PieProps[], title:string) => {
     const pieOption:EChartOption = {
         title: {
-            text: 'Referer of a Website',
+            text: title,
             left: 'center'
         },
           tooltip: {
             trigger: 'item',
-            //formatter: '{a} <br/>{b}: {c} ({d}%)'
           },
           series: [
             {
@@ -35,7 +34,6 @@ const createPieOption = (data:PieProps[]) => {
     return pieOption
 }
 type BarProps = (string | number)[][]
-
 const createBarOption = (data:BarProps) => {
   const barOption:EChartOption = {
     dataset: {
@@ -64,7 +62,11 @@ const countByGroup = (grouppedData: Record<string, ClothItem[]>) => {
 
     return countedData
 }
-
+interface CategoryCountArr {
+  name: string,
+  count: number,
+  percent: number
+}
 export const useStatistic = (documents:ClothItem[]) => {
     // const [options, setOptions] = useState<EChartOption>();
 
@@ -78,19 +80,36 @@ export const useStatistic = (documents:ClothItem[]) => {
     const groupedByCategory = groupBy(documents, 'category')
     const subCategoryCounts  = countByGroup(groupedByCategory)
     // 카테고리별 개수산정 파이차트 옵션 생성
-    const pieOption:EChartOption = createPieOption(subCategoryCounts)
+    const pieOption:EChartOption = createPieOption(subCategoryCounts, '카테고리별 비중')
     
     // 상위 카테고리별 개수 산정
-    const categoryCounts: Record<string, number> = {};
+    const categoryCounts: Record<string, { count: number, percent: number }> = {};
     for (const category in groupedByCategory) {
         const parentCategory = findParentLabel(category);
-        categoryCounts[parentCategory] = (categoryCounts[parentCategory] || 0) + groupedByCategory[category].length;
+        const count = groupedByCategory[category].length;
+        const percent = Math.round(count / documents.length * 100);
+
+        categoryCounts[parentCategory] = { 
+          count: (categoryCounts[parentCategory]?.count || 0) + count, 
+          percent: (categoryCounts[parentCategory]?.percent || 0) + percent
+        }
     }
+
+    const categoryCountsArr :CategoryCountArr[] = Object.entries(categoryCounts).map(([name, { count, percent }]) => ({
+      name,
+      count,
+      percent,
+    }));
+
+    // 화면에 보여줄 순서대로 정렬
+    const order = ["outer", "top", "bottom"];
+    categoryCountsArr.sort((a, b) => order.indexOf(a.name) - order.indexOf(b.name));
+
     // 브랜드별로 나눔
     const groupedByBrand = groupBy(documents, 'brand')
     const brandCounts  = countByGroup(groupedByBrand)
     // 브랜드별 개수산정 파이차트 옵션 생성
-    const pieOption1:EChartOption = createPieOption(brandCounts)
+    const pieOption1:EChartOption = createPieOption(brandCounts, '브랜드별 비중')
 
     // 브랜드별, 카테고리별 wearcount 산정
     const brandCategoryCount = Object.keys(groupedByBrand).map((brand) => {
@@ -117,7 +136,5 @@ export const useStatistic = (documents:ClothItem[]) => {
     brandCategoryCount.unshift(['brand', 'outer', 'top', 'bottom'])
     const barOption = createBarOption(brandCategoryCount)
     
-    return { categoryCounts, pieOption, pieOption1, barOption, bestWorstCloth}
-
-
+    return { categoryCountsArr, pieOption, pieOption1, barOption, bestWorstCloth}
 }

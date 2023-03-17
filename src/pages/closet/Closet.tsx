@@ -37,12 +37,12 @@ export default function Closet () {
     }
 
     return (
-        <Layout style={{minHeight: '100vh'}}>
+        <Layout style={{minHeight: 'calc(100vh - 64px)'}}>
             <Sider
                 breakpoint="lg"
                 collapsedWidth="0"
                 style={{
-                    height: '100vh',
+                    height: 'calc(100vh - 64px)',
                     position: 'sticky',
                     top: 0,
                   }}
@@ -56,7 +56,7 @@ export default function Closet () {
                 />
             </Sider>
             <Layout>
-                <Content style={{ margin: '24px 16px 0' }}>
+                <Content style={{ margin: '24px 34px 0' }}>
                     {
                         state?.user && !dashboard && documents &&
                             <ClosetContent documents={documents} deleteDoc={deleteDoc} uid={state?.user.uid}/>

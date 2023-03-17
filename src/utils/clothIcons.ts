@@ -9,6 +9,9 @@ import shortSleeve from '../icons/cloth/short-sleeve.png';
 import sleeveLess from '../icons/cloth/sleeveless.png';
 import jean from '../icons/cloth/jean.png';
 import short from '../icons/cloth/short.png';
+import outer from '../icons/cloth/icon-outer.gif';
+import top from '../icons/cloth/icon-top.gif';
+import bottom from '../icons/cloth/icon-bottom.gif';
 
 const clothIcons = {
     padding,
@@ -21,7 +24,10 @@ const clothIcons = {
     shortSleeve,
     sleeveLess,
     jean,
-    short
+    short,
+    outer,
+    top,
+    bottom
 }
 
 export default clothIcons;
