@@ -56,7 +56,15 @@ export default function Shop ({ open, setOpen, uid }:ShopProps) {
 
     const addCloth = (item:ClothItem) => {
         if (uid) {
-            addDocument({ uid, ...item})
+            // brand값이 없을 경우 파싱해서 넣어준다. 
+            // 주로 타이틀의 대괄호안에 있거나, 없을 경우 가장 앞에 위치
+            if(item.brand === '') {
+                const brandNameRegex = /^(?:\[[^\]]+\]|[\w-]+)/; // []내의 문자열 파싱
+                const brandName = item.title.match(brandNameRegex)?.[0]?.replace(/\[|\]/g, '');
+                
+                item.brand = brandName ? brandName : item.title.split(' ')[0];
+            }
+            addDocument({ uid, ...item, wearCount: 0})
         } else {
             messageApi.open({
                 type: 'error',
@@ -102,7 +110,7 @@ export default function Shop ({ open, setOpen, uid }:ShopProps) {
                 onChange={(e) => setSearchValue(e.target.value)}/>
                 {
                     list &&
-                    <ClothList componentNm='shop' list={list} isLoading={isLoading} func={addCloth} btnTitle='담기'/>
+                    <ClothList componentNm='shop' list={list} func={addCloth} btnTitle='담기'/>
                 }
                 {
                     list && hasMore && 

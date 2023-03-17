@@ -78,7 +78,11 @@ export const categories = [
                 label: '청바지'
             }
         ]
-    }
+    },
+    {
+        key: 'dashboard',
+        label: '📊 옷장분석',
+    },
 ]
 
 export const findParentLabel = (label:string) => {

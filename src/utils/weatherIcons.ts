@@ -15,9 +15,7 @@ import snowNight from '../icons/weather/partly-cloudy-night-snow.svg';
 import mistDay from '../icons/weather/fog-day.svg';
 import mistNight from '../icons/weather/fog-night.svg';
 
-type WeatherIcons = {
-    [key: string]: string;
-};
+type WeatherIcons = Record<string, string>
 
 const weatherIcons:WeatherIcons = {};
 weatherIcons['01d'] = clearSkyDay;

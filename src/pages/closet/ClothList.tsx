@@ -11,7 +11,7 @@ const CoverImage = styled.div<{image:string}>`
 `
 interface ClothListProps {
     list: ClothItem[];
-    isLoading: boolean;
+    //isLoading: boolean;
     func: (props: ClothItem) => void;
     btnTitle: string;
     componentNm: string;
@@ -20,7 +20,7 @@ const listStyle = {
     height:'calc(100vh - 350px', display: 'flex', alignItems: 'center', justifyContent: 'center'
 }
 
-export default function ClothList ({ list, isLoading, func, btnTitle, componentNm }:ClothListProps) {
+export default function ClothList ({ list, func, btnTitle, componentNm }:ClothListProps) {
     return (
         <List
             grid={{
@@ -33,7 +33,7 @@ export default function ClothList ({ list, isLoading, func, btnTitle, componentN
                 xxl: 5
             }}
             style={list.length === 0 ? listStyle : {}}
-            loading={isLoading}
+            // loading={isLoading}
             dataSource={list}
             renderItem={(item:ClothItem) => (
                 <List.Item key={`${componentNm}-${item.id}`}>
