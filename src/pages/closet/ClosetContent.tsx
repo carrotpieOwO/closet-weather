@@ -4,7 +4,7 @@ import { Badge, Button, Col, Row, Typography } from 'antd';
 import styled from "styled-components";
 import ClothList from "./ClothList";
 import Shop from "./Shop";
-import { useStatistic } from "../../hooks/useStatistic";
+import { statistic } from "../../utils/statistic";
 
 const { Title } = Typography;
 
@@ -29,7 +29,7 @@ interface ClosetContentPrams {
 export default function ClosetContent ({documents, deleteDoc, uid}:ClosetContentPrams) {
     const [ open, setOpen ] = useState(false);
     const [ bestCloth, setBestCloth ] = useState<ClothItem[]>([])
-    const { bestWorstCloth } = useStatistic(documents);
+    const { bestWorstCloth } = statistic(documents);
 
     useEffect(() => {
         const best = bestWorstCloth.bestCloth.filter(cloth => cloth.wearCount)

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Layout, Menu, Typography } from 'antd';
+import { Layout, Menu } from 'antd';
 import { ClothItem, QueryProps } from "../../index.d";
 import { useCollection } from '../../hooks/useCollection';
 import { useAuthContext } from '../../hooks/useAuthContext';
@@ -42,7 +42,7 @@ export default function Closet () {
                 breakpoint="lg"
                 collapsedWidth="0"
                 style={{
-                    height: 'calc(100vh - 64px)',
+                    height: '100vh',
                     position: 'sticky',
                     top: 0,
                   }}

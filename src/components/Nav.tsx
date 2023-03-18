@@ -1,9 +1,8 @@
 import { Link } from "react-router-dom";
 import { useAuthContext } from "../hooks/useAuthContext";
 import { useLogout } from "../hooks/useLogout";
-import { Dropdown, Space, Button, MenuProps } from 'antd';
+import { Button, MenuProps } from 'antd';
 import styled from "styled-components";
-import { DownOutlined } from '@ant-design/icons';
 import logo from '../icons/logo.svg'
 
 const Header = styled.header`
@@ -35,22 +34,6 @@ export default function Nav() {
     const { logout } = useLogout()
     const { state } = useAuthContext();
 
-    const items: MenuProps['items'] = [
-        {
-            label: (
-                <div onClick={logout}>회원정보 수정</div>
-            ),
-            key: '0',
-        },
-        {
-            label: (
-                <div onClick={logout}>로그아웃</div>
-            ),
-            key: '1',
-        },
-    ];
-
-
     return (
         <Header>
             <div style={{display:'flex', alignItems:'center', gap: '10px'}}>
@@ -61,23 +44,13 @@ export default function Nav() {
                     state?.user &&
                     <div style={{marginLeft: '30px'}}>
                         <Button type="text"><Link to='/closet'>옷장</Link></Button>
-                        <Button type="text"><Link to='/calendar'>monthly ootd</Link></Button>
+                        <Button type="text"><Link to='/calendar'>월간기록</Link></Button>
                     </div>
                 }
             </div>
             {
                 !state?.user ? <Button><Link to='/login'>로그인</Link></Button>
-                : 
-                <div>
-                    <Dropdown menu={{ items }}>
-                        <a onClick={(e) => e.preventDefault()}>
-                        <Space>
-                            {state.user.displayName}님
-                            <DownOutlined />
-                        </Space>
-                        </a>
-                    </Dropdown>
-                </div>
+                : <Button onClick={logout}>로그아웃</Button>
             }
         </Header>
     )

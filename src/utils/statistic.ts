@@ -67,9 +67,7 @@ interface CategoryCountArr {
   count: number,
   percent: number
 }
-export const useStatistic = (documents:ClothItem[]) => {
-    // const [options, setOptions] = useState<EChartOption>();
-
+export const statistic = (documents:ClothItem[]) => {
     // 착용횟수가 가장 높은 순위, 낮은 순위 구하기
     const clothWearRank = documents.sort((a, b) => (b.wearCount || 0) - (a.wearCount || 0));
     const bestCloth = clothWearRank.slice(0, 3);
@@ -80,13 +78,17 @@ export const useStatistic = (documents:ClothItem[]) => {
     const groupedByCategory = groupBy(documents, 'category')
     const subCategoryCounts  = countByGroup(groupedByCategory)
     // 카테고리별 개수산정 파이차트 옵션 생성
-    const pieOption:EChartOption = createPieOption(subCategoryCounts, '카테고리별 비중')
+    const categoryPieOption:EChartOption = createPieOption(subCategoryCounts, '카테고리별 비중')
     
     // 상위 카테고리별 개수 산정
-    const categoryCounts: Record<string, { count: number, percent: number }> = {};
+    const categoryCounts: Record<string, { count: number, percent: number }> = {
+      "outer": { count: 0, percent: 0 },
+      "top": { count: 0, percent: 0 },
+      "bottom": { count: 0, percent: 0 },
+    };
     for (const category in groupedByCategory) {
         const parentCategory = findParentLabel(category);
-        const count = groupedByCategory[category].length;
+        const count = groupedByCategory[category].length || 0;
         const percent = Math.round(count / documents.length * 100);
 
         categoryCounts[parentCategory] = { 
@@ -109,7 +111,7 @@ export const useStatistic = (documents:ClothItem[]) => {
     const groupedByBrand = groupBy(documents, 'brand')
     const brandCounts  = countByGroup(groupedByBrand)
     // 브랜드별 개수산정 파이차트 옵션 생성
-    const pieOption1:EChartOption = createPieOption(brandCounts, '브랜드별 비중')
+    const brandPieOption:EChartOption = createPieOption(brandCounts, '브랜드별 비중')
 
     // 브랜드별, 카테고리별 wearcount 산정
     const brandCategoryCount = Object.keys(groupedByBrand).map((brand) => {
@@ -136,5 +138,5 @@ export const useStatistic = (documents:ClothItem[]) => {
     brandCategoryCount.unshift(['brand', 'outer', 'top', 'bottom'])
     const barOption = createBarOption(brandCategoryCount)
     
-    return { categoryCountsArr, pieOption, pieOption1, barOption, bestWorstCloth}
+    return { categoryCountsArr, categoryPieOption, brandPieOption, barOption, bestWorstCloth }
 }
