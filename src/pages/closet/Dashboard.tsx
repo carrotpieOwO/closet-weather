@@ -69,12 +69,17 @@ export default function Dashboard({documents}:{documents:ClothItem[]}) {
                         }
                         <Title level={2}>브랜드별 착용 횟수</Title>
                         {
-                            barOption &&
+                            barOption ?
                             <Card bordered={false} style={{margin: '10px 0'}}>
                                 <ECharts
                                     theme="myTheme"
                                     option={barOption}
                                 />
+                            </Card>
+                            :
+                            <Card bordered={false} style={{margin: '10px 0', textAlign:'center'}}>
+                                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                                <Text type="secondary">착용한 옷이 없습니다.</Text>
                             </Card>
                         }
                     </Col>

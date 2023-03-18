@@ -116,27 +116,31 @@ export const statistic = (documents:ClothItem[]) => {
     // 브랜드별, 카테고리별 wearcount 산정
     const brandCategoryCount = Object.keys(groupedByBrand).map((brand) => {
       const brandDocs = groupedByBrand[brand];
-      const brandCount: number[] = [0, 0, 0]; // outer, top, bottom
-    
-      brandDocs.forEach((doc) => {
-        // outer, top, bottom의 상위카테고리별로 분류해주기 위해 category의 상위카테고리명을 받아온다.
-        const category = findParentLabel(doc.category!);
-    
-        if (category === 'outer') {
-          brandCount[0] += doc.wearCount || 0;
-          } else if (category === 'top') {
-            brandCount[1] += doc.wearCount || 0;
-          } else if (category === 'bottom') {
-            brandCount[2] += doc.wearCount || 0;
-          }
-        });
-    
-      return [brand === '' ? '기타' : brand, ...brandCount];
+      const docHasWearCount = brandDocs.filter(doc => doc.wearCount && doc.wearCount > 0);
+      // wearCount가 0이상인 항목만 집계한다. 
+      if (docHasWearCount.length > 0) {
+        const brandCount: number[] = [0, 0, 0]; // outer, top, bottom
+        docHasWearCount.forEach((doc) => {
+          // outer, top, bottom의 상위카테고리별로 분류해주기 위해 category의 상위카테고리명을 받아온다.
+          const category = findParentLabel(doc.category!);
+      
+          if (category === 'outer') {
+            brandCount[0] += doc.wearCount || 0;
+            } else if (category === 'top') {
+              brandCount[1] += doc.wearCount || 0;
+            } else if (category === 'bottom') {
+              brandCount[2] += doc.wearCount || 0;
+            }
+          });
+          return [brand === '' ? '기타' : brand, ...brandCount];
+      } else {
+        return []
+      }
     });
-
-    // 브랜드별, 카테고리별 착용횟수 bar차트 생성
+    
+    // 브랜드별, 카테고리별 착용횟수가 있을 경우 bar차트 생성
     brandCategoryCount.unshift(['brand', 'outer', 'top', 'bottom'])
-    const barOption = createBarOption(brandCategoryCount)
+    let barOption = brandCategoryCount.length > 2 ? createBarOption(brandCategoryCount) : null;
     
     return { categoryCountsArr, categoryPieOption, brandPieOption, barOption, bestWorstCloth }
 }
