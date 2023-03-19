@@ -24,7 +24,7 @@ export const useShop = () => {
 
         return new Promise((resolve, reject) => {
             axios
-                .get<{ items: ResponseItem[], total:number, display:number }>('/v1/search/shop.json', {
+                .get<{ items: ResponseItem[], total:number, display:number }>('/api/v1/search/shop.json', {
                     params: {
                         query: value,
                         display: 30,
