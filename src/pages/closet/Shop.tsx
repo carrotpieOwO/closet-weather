@@ -70,7 +70,6 @@ export default function Shop ({ open, setOpen, uid }:ShopProps) {
                 type: 'error',
                 content: '로그인이 필요합니다.',
             });
-            window.location.replace('/login')
         }
     }
 
